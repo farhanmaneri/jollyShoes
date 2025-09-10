@@ -1,0 +1,12 @@
+#hero-container {
+    margin-top: 4rem;
+}
+
+#hero-container>img {
+    width: 90%;
+    margin-left: 5%;
+    padding: 1.5rem 0;
+    height: 450px;
+    border-radius: 50px;
+    /* border: 1px solid red !important; */
+}

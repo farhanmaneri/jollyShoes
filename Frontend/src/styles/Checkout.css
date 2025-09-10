@@ -1,0 +1,171 @@
+.checkout-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.checkout-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.checkout-item {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.checkout-item img {
+    width: 50px;
+    height: 50px;
+}
+
+.checkout-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.checkout-form input,
+.checkout-form textarea {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.checkout-btn {
+    padding: 10px;
+    background-color: #9d174d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.checkout-btn:hover {
+    background-color: #7a123a;
+}
+
+.checkout-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Logged in user section styles */
+.logged-in-user-section {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.user-info {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.user-info h4 {
+    color: #9d174d;
+    margin-bottom: 10px;
+}
+
+.user-info p {
+    margin: 5px 0;
+    color: #666;
+}
+
+/* Not logged in section styles */
+.not-logged-in-section {
+    background-color: #fff3cd;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #ffeaa7;
+}
+
+.login-prompt {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.login-prompt h4 {
+    color: #856404;
+    margin-bottom: 10px;
+}
+
+.login-prompt p {
+    color: #856404;
+    margin-bottom: 15px;
+}
+
+.login-btn {
+    background-color: #007bff !important;
+    color: white !important;
+    padding: 10px 20px !important;
+    border: none !important;
+    border-radius: 5px !important;
+    cursor: pointer !important;
+    margin-bottom: 20px !important;
+    font-weight: bold !important;
+}
+
+.login-btn:hover {
+    background-color: #0056b3 !important;
+}
+
+/* OTP verification section styles */
+.otp-verification-section {
+    background-color: #e8f5e8;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #c3e6c3;
+}
+
+.otp-info {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.otp-info h4 {
+    color: #155724;
+    margin-bottom: 10px;
+}
+
+.otp-info p {
+    color: #155724;
+    margin: 5px 0;
+}
+
+/* Form styles */
+.App {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.App input {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.App input:focus {
+    outline: none;
+    border-color: #9d174d;
+    box-shadow: 0 0 5px rgba(157, 23, 77, 0.3);
+}
+
+.App span {
+    font-size: 14px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
