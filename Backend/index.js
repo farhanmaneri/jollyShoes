@@ -81,7 +81,7 @@ const dbConnection = async () => {
 };
 
 dbConnection();
-
+// this commit is just for vercel update
 // ✅ Add root route
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the Jolly Shoes Backend API" });
