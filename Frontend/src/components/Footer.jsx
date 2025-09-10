@@ -52,13 +52,13 @@ export default function Footer() {
             {/* Company Info Section */}
             <div className="footer-section company-info">
               <div className="company-logo">
-                <h2 className="company-name">Zia Zergary House</h2>
+                <h2 className="company-name">Jolly Shoes</h2>
                 <p className="company-tagline">
-                  Your trusted jewellery partner
+                  Your trusted Shoes Partner
                 </p>
               </div>
               <p className="company-description">
-                Providing quality jewellery and exceptional service since our
+                Providing quality Shoes and exceptional service since our
                 establishment. We're committed to bringing you the latest
                 technology at the best prices.
               </p>
@@ -220,7 +220,7 @@ export default function Footer() {
             <h3 className="section-title">Find Our Store</h3>
             <div className="map-container">
               <iframe
-                title="Zia Zargery House Map"
+                title="Jolly Shoes"
                 src="https://www.google.com/maps?q=Royal Electronics, Swabi Adda&output=embed"
                 width="100%"
                 height="250"
@@ -235,7 +235,7 @@ export default function Footer() {
           <div className="footer-bottom">
             <div className="footer-bottom-content">
               <p className="copyright">
-                &copy; 2025 Zia Zargary House. All rights reserved.
+                &copy; 2025 Jolly Shoes. All rights reserved.
               </p>
               <p className="made-with-love">
                 Made with{" "}

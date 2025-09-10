@@ -100,7 +100,7 @@ function Navbar() {
             onClick={() => navigate("/")}
           >
             <Store className="mr-2 w-7 h-7" />
-            Zia Zargery House
+            Jolly Shoes
           </div>
 
           {/* Desktop Menu */}
@@ -237,7 +237,7 @@ function Navbar() {
               onClick={() => navigate("/")}
             >
               <Store className="mr-1 w-5 h-5" />
-              <span className="text-sm">Zia Zargery House</span>
+              <span className="text-sm">Jolly Shoes</span>
             </div>
 
             {/* Center - Hamburger Menu */}

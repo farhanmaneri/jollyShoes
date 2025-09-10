@@ -19,36 +19,26 @@ const productSchema = new mongoose.Schema(
       required: [true, "Image is required"],
     },
 
-    // Dynamic price fields
-    weightInGrams: {
-      type: Number,
-      default: 0, // Only used if category === "gold"
-    },
-    makingCharges: {
-      type: Number,
-      default: 0, // Extra labor charges (optional)
-    },
+    // 👟 Shoe-specific fields
+    sizes: [
+      {
+        size: {
+          type: Number, // e.g. 38, 39, 40, 41
+          required: true,
+        },
+        stock: {
+          type: Number, // number of shoes available for that size
+          default: 0,
+        },
+      },
+    ],
+
     price: {
       type: Number,
-      default: 0, // For non-gold items, admin sets manually
+      required: [true, "Price is required"], // fixed price (no dynamic gold logic)
     },
   },
   { timestamps: true }
 );
-
-// Virtual field for final price
-productSchema.virtual("finalPrice").get(function () {
-  return this._calculatedPrice ?? this.price;
-});
-
-// Method to calculate price dynamically
-productSchema.methods.setDynamicPrice = function (ratePerGram) {
-  if (this.category.toLowerCase() === "gold") {
-    this._calculatedPrice =
-      (this.weightInGrams || 0) * (ratePerGram || 0) + (this.makingCharges || 0);
-  } else {
-    this._calculatedPrice = this.price;
-  }
-};
 
 module.exports = mongoose.model("Product", productSchema);

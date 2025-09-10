@@ -8,7 +8,7 @@ function About() {
     <div className="max-w-6xl mx-auto px-6 py-16">
       <h1 className="text-3xl font-bold text-indigo-600 mb-6">About Us</h1>
       <p className="text-gray-700 leading-relaxed mb-6">
-        Welcome to <span className="font-semibold">Zia Store</span>, your
+        Welcome to <span className="font-semibold">Jolly Shoes e-Store</span>, your
         trusted online marketplace. We are passionate about bringing you the
         best quality products with a smooth and reliable shopping experience.
       </p>

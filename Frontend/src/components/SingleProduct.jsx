@@ -1,48 +1,69 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   ShoppingCart,
   Heart,
-  Star,
   Share2,
   ArrowLeft,
   CheckCircle,
   Plus,
   Minus,
-  Truck,
-  Shield,
-  RotateCcw,
 } from "lucide-react";
 import { add } from "../redux/features/navbar/navbarSlice";
 import toast, { Toaster } from "react-hot-toast";
 
-import "../styles/SingleProduct.css";
-
 function SingleProduct(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedSize, setSelectedSize] = useState("");
 
-  // Mock additional images - you can make this dynamic based on your data
-  const productImages = [
-    props.productDetails.image,
-    // props.productDetails.image, // Add more images if available
-    // props.productDetails.image,
-    // props.productDetails.image,
-  ];
+  const product = props.productDetails;
+  const productImages = [product.image];
 
+  // Handlers
   const handleAddToCart = () => {
-    // Add multiple quantities if selected
-    for (let i = 0; i < quantity; i++) {
-      dispatch(add(props.productDetails));
+    if (!selectedSize) {
+      toast.error("Please select a size first", {
+        style: {
+          borderRadius: "12px",
+          background: "#EF4444",
+          color: "#fff",
+          fontWeight: "600",
+        },
+      });
+      return;
     }
 
+    const sizeInfo = product.sizes?.find(
+      (s) => s.size === Number(selectedSize)
+    );
+    if (!sizeInfo || sizeInfo.stock < quantity) {
+      toast.error("Not enough stock available", {
+        style: {
+          borderRadius: "12px",
+          background: "#EF4444",
+          color: "#fff",
+          fontWeight: "600",
+        },
+      });
+      return;
+    }
+
+    const cartItem = {
+      ...product,
+      selectedSize,
+      quantity,
+    };
+
+    dispatch(add(cartItem));
     setIsAdded(true);
-    toast.success(`Added ${quantity} item${quantity > 1 ? "s" : ""} to cart!`, {
+
+    toast.success(`Added ${quantity} item(s) to cart!`, {
       icon: "🛒",
       style: {
         borderRadius: "12px",
@@ -53,29 +74,45 @@ function SingleProduct(props) {
       duration: 3000,
     });
 
-    // Reset the added state after 3 seconds
     setTimeout(() => setIsAdded(false), 3000);
   };
-// const handleBuyNow = () => Navigate("/checkout");
-const handleBuyNow = () => navigate("/checkout");
-  // const handleWishlist = () => {
-  //   setIsWishlisted(!isWishlisted);
-  //   toast(isWishlisted ? "Removed from wishlist" : "Added to wishlist", {
-  //     icon: isWishlisted ? "💔" : "❤️",
-  //     style: {
-  //       borderRadius: "12px",
-  //       background: isWishlisted ? "#EF4444" : "#EC4899",
-  //       color: "#fff",
-  //       fontWeight: "600",
-  //     },
-  //   });
-  // };
+
+  const handleBuyNow = () => {
+    if (!selectedSize) {
+      toast.error("Please select a size first", {
+        style: {
+          borderRadius: "12px",
+          background: "#EF4444",
+          color: "#fff",
+          fontWeight: "600",
+        },
+      });
+      return;
+    }
+
+    const sizeInfo = product.sizes?.find(
+      (s) => s.size === Number(selectedSize)
+    );
+    if (!sizeInfo || sizeInfo.stock < quantity) {
+      toast.error("Not enough stock available", {
+        style: {
+          borderRadius: "12px",
+          background: "#EF4444",
+          color: "#fff",
+          fontWeight: "600",
+        },
+      });
+      return;
+    }
+
+    navigate("/checkout");
+  };
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: props.productDetails.title,
-        text: props.productDetails.description,
+        title: product.title,
+        text: product.description,
         url: window.location.href,
       });
     } else {
@@ -93,7 +130,9 @@ const handleBuyNow = () => navigate("/checkout");
   };
 
   const increaseQuantity = () => {
-    if (quantity < 10) setQuantity(quantity + 1);
+    const maxStock =
+      product.sizes?.find((s) => s.size === Number(selectedSize))?.stock || 1;
+    if (quantity < maxStock) setQuantity(quantity + 1);
   };
 
   const decreaseQuantity = () => {
@@ -103,41 +142,37 @@ const handleBuyNow = () => navigate("/checkout");
   return (
     <>
       <Toaster position="top-right" />
-      <div className="single-product-container">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-gray-50 min-h-screen">
         {/* Back Button */}
-        <button className="back-button" onClick={() => navigate(-1)}>
-          <ArrowLeft size={20} />
-          <span>Back to Products</span>
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center text-gray-600 hover:text-gray-800 transition-colors duration-200 mb-6"
+        >
+          <ArrowLeft size={20} className="mr-2" />
+          <span className="text-sm font-medium">Back to Products</span>
         </button>
 
-        <div className="product-detail-wrapper">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Product Images Section */}
-          <div className="product-images-section">
-            <div className="main-image-container">
+          <div className="space-y-4">
+            <div className="relative bg-white rounded-lg shadow-md overflow-hidden">
               <img
                 src={productImages[selectedImage]}
-                alt={props.productDetails.title}
-                className="main-product-image"
+                alt={product.title}
+                className="w-full h-[400px] object-cover transition-transform duration-300 hover:scale-105"
               />
-              {/* <button
-                className={`wishlist-btn-detail ${
-                  isWishlisted ? "active" : ""
-                }`}
-                onClick={handleWishlist}
-              >
-                <Heart size={24} fill={isWishlisted ? "#EF4444" : "none"} />
-              </button> */}
             </div>
-
-            <div className="thumbnail-images">
+            <div className="flex space-x-2 overflow-x-auto pb-2">
               {productImages.map((image, index) => (
                 <img
                   key={index}
                   src={image}
-                  alt={`${props.productDetails.title} ${index + 1}`}
-                  className={`thumbnail ${
-                    selectedImage === index ? "active" : ""
-                  }`}
+                  alt={`${product.title} ${index + 1}`}
+                  className={`w-20 h-20 object-cover rounded-md cursor-pointer border-2 ${
+                    selectedImage === index
+                      ? "border-blue-500"
+                      : "border-transparent"
+                  } hover:border-blue-300 transition-all duration-200`}
                   onClick={() => setSelectedImage(index)}
                 />
               ))}
@@ -145,134 +180,126 @@ const handleBuyNow = () => navigate("/checkout");
           </div>
 
           {/* Product Details Section */}
-          <div className="product-details-section">
-            <div className="product-header-detail">
-              <div className="brand-category">
-                <span className="brand">
-                  {props.productDetails.brand || "Premium Brand"}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <span className="text-sm text-gray-500 uppercase font-medium">
+                  {product.brand || "Premium Brand"} • {product.category}
                 </span>
-                <span className="category-badge">
-                  {props.productDetails.category}
-                </span>
+                <h1 className="text-2xl font-bold text-gray-900 mt-1">
+                  {product.title}
+                </h1>
               </div>
-
-              <button className="share-button" onClick={handleShare}>
-                <Share2 size={20} />
+              <button
+                onClick={handleShare}
+                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors duration-200"
+              >
+                <Share2 size={20} className="text-gray-600" />
               </button>
             </div>
 
-            <h1 className="product-title-detail">
-              {props.productDetails.title}
-            </h1>
-
-            {/* Rating Section */}
-            {/* <div className="rating-section">
-              <div className="stars">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={20}
-                    fill={i < 4 ? "#FCD34D" : "none"}
-                    color={i < 4 ? "#FCD34D" : "#D1D5DB"}
-                  />
-                ))}
-              </div>
-              <span className="rating-text">(4.0) • 127 reviews</span>
-            </div> */}
-
             {/* Price Section */}
-            <div className="price-section-detail">
-              <div className="current-price">
-                <span className="currency">Rs</span>
-                <span className="price">
-                  {props.productDetails.finalPrice ??
-                    props.productDetails.price}
+            <div className="mb-6">
+              <div className="flex items-baseline space-x-2">
+                <span className="text-3xl font-semibold text-gray-900">
+                  Rs {product.finalPrice ?? product.price}
                 </span>
-              </div>
-
-              <div className="product-weight">
-                <small>
-                  Weight: {props.productDetails.weightInGrams} grams
-                </small>
               </div>
             </div>
 
             {/* Description */}
-            <div className="description-section">
-              <h3>Description</h3>
-              <p>"{props.productDetails.description}"</p>
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Description
+              </h3>
+              <p className="text-gray-600 mt-2">{product.description}</p>
             </div>
 
-            {/* Features */}
-            {/* <div className="features-section">
-              <div className="feature-item">
-                <Truck size={20} />
-                <span>Free shipping on orders over $50</span>
+            {/* Size Selection */}
+            {product.sizes && product.sizes.length > 0 && (
+              <div className="mb-6">
+                <label
+                  htmlFor="size-selector"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Select Size
+                </label>
+                <select
+                  id="size-selector"
+                  value={selectedSize}
+                  onChange={(e) => {
+                    setSelectedSize(e.target.value);
+                    setQuantity(1);
+                  }}
+                  className="w-full max-w-xs p-2 border rounded-md text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                >
+                  <option value="" disabled>
+                    Choose a size
+                  </option>
+                  {product.sizes.map((s, idx) => (
+                    <option key={idx} value={s.size}>
+                      {s.size}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <div className="feature-item">
-                <Shield size={20} />
-                <span>2 year warranty included</span>
-              </div>
-              <div className="feature-item">
-                <RotateCcw size={20} />
-                <span>30-day return policy</span>
-              </div>
-            </div> */}
+            )}
 
-            {/* Quantity and Add to Cart */}
-            <div className="purchase-section">
-              <div className="quantity-selector">
-                <span className="quantity-label">Quantity:</span>
-                <div className="quantity-controls">
+            {/* Quantity and Actions */}
+            {selectedSize && (
+              <div className="mb-6">
+                <div className="flex items-center space-x-4 mb-4">
+                  <span className="text-sm font-medium text-gray-700">
+                    Quantity:
+                  </span>
+                  <div className="flex items-center border rounded-md">
+                    <button
+                      onClick={decreaseQuantity}
+                      disabled={quantity <= 1}
+                      className="p-2 text-gray-600 hover:text-gray-800 disabled:text-gray-400"
+                    >
+                      <Minus size={16} />
+                    </button>
+                    <span className="px-4 py-2 text-gray-900 font-medium">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={increaseQuantity}
+                      className="p-2 text-gray-600 hover:text-gray-800"
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex space-x-4">
                   <button
-                    className="quantity-btn"
-                    onClick={decreaseQuantity}
-                    disabled={quantity <= 1}
+                    onClick={handleAddToCart}
+                    className={`flex items-center justify-center px-6 py-3 rounded-md text-white font-medium transition-all duration-200 ${
+                      isAdded ? "bg-green-600" : "bg-blue-600 hover:bg-blue-700"
+                    }`}
                   >
-                    <Minus size={16} />
+                    {isAdded ? (
+                      <>
+                        <CheckCircle size={20} className="mr-2" />
+                        Added!
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart size={20} className="mr-2" />
+                        Add to Cart
+                      </>
+                    )}
                   </button>
-                  <span className="quantity-value">{quantity}</span>
                   <button
-                    className="quantity-btn"
-                    onClick={increaseQuantity}
-                    disabled={quantity >= 10}
+                    onClick={handleBuyNow}
+                    className="px-6 py-3 rounded-md bg-orange-500 text-white font-medium hover:bg-orange-600 transition-all duration-200"
                   >
-                    <Plus size={16} />
+                    Buy Now
                   </button>
                 </div>
               </div>
-
-              <div className="action-buttons">
-                <button
-                  className={`add-to-cart-btn-detail ${isAdded ? "added" : ""}`}
-                  onClick={handleAddToCart}
-                >
-                  {isAdded ? (
-                    <>
-                      <CheckCircle size={20} />
-                      <span>Added to Cart!</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart size={20} />
-                      <span>Add to Cart</span>
-                    </>
-                  )}
-                </button>
-
-                <button onClick={handleBuyNow} className="buy-now-btn">
-                  Buy Now
-                </button>
-              </div>
-            </div>
-
-            {/* Stock Status */}
-            <div className="stock-info">
-              <div className="stock-indicator in-stock">
-                <div className="stock-dot"></div>
-                <span>In Stock - Ready to ship</span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

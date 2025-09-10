@@ -9,7 +9,7 @@ const {
  const sendVerificationEamil = async (email, verificationToken) => {
   try {
     const response = await transporter.sendMail({
-      from: '"Zia Zergary House" <farhanmaneri@gmail.com>',
+      from: '"Jolly Shoes" <farhanmaneri@gmail.com>',
 
       to: email, // list of receivers
       subject: "Verify your Email", // Subject line
@@ -25,7 +25,7 @@ const {
  const sendWelcomeEmail = async (email, name) => {
   try {
     const response = await transporter.sendMail({
-      from: '"Zia Zergary House" <farhanmaneri@gmail.com>',
+      from: '"Jolly Shoes" <farhanmaneri@gmail.com>',
 
       to: email, // list of receivers
       subject: "Welcome Email", // Subject line
@@ -42,9 +42,9 @@ const {
 const sendOrderOTPEmail = async (email, name, verificationCode, totalAmount, itemCount) => {
   try {
     const response = await transporter.sendMail({
-      from: '"Zia Zergary House" <farhanmaneri@gmail.com>',
+      from: '"Jolly Shoes" <farhanmaneri@gmail.com>',
       to: email,
-      subject: "Order Verification Code - Zia Zergary House",
+      subject: "Order Verification Code - Jolly Shoes",
       text: "Order Verification Code",
       html: Order_OTP_Email_Template
         .replace("{name}", name)
@@ -74,9 +74,9 @@ const sendOrderConfirmationEmail = async (orderData) => {
     `).join('');
 
     const response = await transporter.sendMail({
-      from: '"Zia Zergary House" <farhanmaneri@gmail.com>',
+      from: '"Jolly Shoes" <farhanmaneri@gmail.com>',
       to: orderData.email,
-      subject: "Order Confirmed - Zia Zergary House",
+      subject: "Order Confirmed - Jolly Shoes",
       text: "Order Confirmation",
       html: Order_Confirmation_Email_Template
         .replace("{customerName}", orderData.userName)

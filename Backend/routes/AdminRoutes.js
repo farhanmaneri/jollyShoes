@@ -9,11 +9,11 @@ const {
   editProduct,
   deleteProduct,
 } = require("../controllers/products");
-const GoldRate = require("../models/goldRate");
+const GoldRate = require("../models/goldRate.js");
 const { addUpload } = require("../controllers/upload");
 const multer = require("multer");
 const { getOrders } = require("../controllers/getOrders");
-const { getGoldRate, setGoldRate } = require("../controllers/goldRate");
+const { getGoldRate, setGoldRate } = require("../controllers/goldRate.js");
 
 const upload = multer({ storage: multer.memoryStorage() });
 

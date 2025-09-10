@@ -84,7 +84,7 @@ dbConnection();
 
 // ✅ Add root route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to the zia zargary house Backend API" });
+  res.json({ message: "Welcome to the Jolly Shoes Backend API" });
 });
 // ✅ Test Route
 app.get("/test", (req, res) => {

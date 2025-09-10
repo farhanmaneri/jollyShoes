@@ -1,27 +1,11 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import {
-  ShoppingCart,
-  Edit3,
-  Trash2,
-  Eye,
-  Star,
-  Heart,
-  Plus,
-  CheckCircle,
-} from "lucide-react";
+import { ShoppingCart, Edit3, Trash2, Eye, CheckCircle } from "lucide-react";
 import { add } from "../redux/features/navbar/navbarSlice";
 import toast, { Toaster } from "react-hot-toast";
-// Custom Components
-import Hero from "./Hero";
 import { removeProduct } from "../redux/features/products/productsSlice";
-
-// Auth Context
 import { useAuth } from "../Auth/AuthProvider";
-
-// Styles
-import "../styles/Products.css";
 import axios from "axios";
 
 function Products() {
@@ -29,7 +13,7 @@ function Products() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [addedItems, setAddedItems] = useState(new Set());
-  // const [wishlistItems, setWishlistItems] = useState(new Set());
+  const [selectedSizes, setSelectedSizes] = useState(new Map());
 
   const { role } = useAuth();
   const API =
@@ -38,7 +22,41 @@ function Products() {
       : import.meta.env.VITE_API_DEV;
 
   const handleAddToCart = (product) => {
-    dispatch(add(product));
+    const selectedSize = selectedSizes.get(product._id);
+    if (!selectedSize) {
+      toast.error("Please select a size first", {
+        style: {
+          borderRadius: "10px",
+          background: "#EF4444",
+          color: "#fff",
+          fontWeight: "600",
+        },
+      });
+      return;
+    }
+
+    const sizeInfo = product.sizes?.find(
+      (s) => s.size === Number(selectedSize)
+    );
+    if (!sizeInfo || sizeInfo.stock === 0) {
+      toast.error("Selected size is out of stock", {
+        style: {
+          borderRadius: "10px",
+          background: "#EF4444",
+          color: "#fff",
+          fontWeight: "600",
+        },
+      });
+      return;
+    }
+
+    const cartItem = {
+      ...product,
+      selectedSize,
+      quantity: 1, // Default to 1 for simplicity on Products page
+    };
+
+    dispatch(add(cartItem));
     setAddedItems((prev) => new Set([...prev, product._id]));
     toast.success("Added to cart!", {
       icon: "🛒",
@@ -46,10 +64,10 @@ function Products() {
         borderRadius: "10px",
         background: "#10B981",
         color: "#fff",
+        fontWeight: "600",
       },
     });
 
-    // Remove the checkmark after 2 seconds
     setTimeout(() => {
       setAddedItems((prev) => {
         const newSet = new Set(prev);
@@ -59,141 +77,156 @@ function Products() {
     }, 2000);
   };
 
-  // const toggleWishlist = (productId) => {
-  //   setWishlistItems((prev) => {
-  //     const newSet = new Set(prev);
-  //     if (newSet.has(productId)) {
-  //       newSet.delete(productId);
-  //       toast("Removed from wishlist", { icon: "💔" });
-  //     } else {
-  //       newSet.add(productId);
-  //       toast("Added to wishlist", { icon: "❤️" });
-  //     }
-  //     return newSet;
-  //   });
-  // };
-
   const handleDelete = async (product) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
         const response = await axios.delete(`${API}/admin/${product._id}`, {
           withCredentials: true,
         });
-        console.log("Deleted:", response.data);
         toast.success("Product deleted successfully", {
           icon: "🗑️",
           style: {
             borderRadius: "10px",
             background: "#EF4444",
             color: "#fff",
+            fontWeight: "600",
           },
         });
         dispatch(removeProduct(product._id));
       } catch (error) {
         console.error("Delete error:", error.response?.data || error.message);
         toast.error(
-          error.response?.data?.message || "Failed to delete product"
+          error.response?.data?.message || "Failed to delete product",
+          {
+            style: {
+              borderRadius: "10px",
+              background: "#EF4444",
+              color: "#fff",
+              fontWeight: "600",
+            },
+          }
         );
       }
     }
   };
 
+  const handleSizeChange = (productId, size) => {
+    setSelectedSizes((prev) => {
+      const newMap = new Map(prev);
+      newMap.set(productId, size);
+      return newMap;
+    });
+  };
+
   return (
     <>
       <Toaster position="top-right" />
-      {/* <Hero /> */}
-
-      <div className="products-container">
-        <div className="products-header">
-          <h1 className="products-title">
-            <span className="title-gradient">Our Products</span>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-gray-50 min-h-screen">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900">
+            Our{" "}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-orange-500">
+              Shoes
+            </span>
           </h1>
-          <p className="products-subtitle">
-            Discover our carefully curated collection of premium products
+          <p className="text-gray-600 mt-2">
+            Explore our latest collection of premium shoes
           </p>
         </div>
 
         {products?.length > 0 ? (
-          <div className="products-grid">
-            {products.map((product, index) => (
-              <div key={product._id} className="product-card">
-                {/* Wishlist Button */}
-                {/* <button
-                  className={`wishlist-btn ${
-                    wishlistItems.has(product._id) ? "active" : ""
-                  }`}
-                  onClick={() => toggleWishlist(product._id)}
-                >
-                  <Heart
-                    size={20}
-                    fill={wishlistItems.has(product._id) ? "#EF4444" : "none"}
-                  />
-                </button> */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products.map((product) => (
+              <div
+                key={product._id}
+                className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-200 hover:shadow-lg hover:-translate-y-1"
+              >
                 {/* Product Image */}
-                <div className="product-image-container">
+                <div className="relative">
                   <img
                     src={product.image}
                     alt={product.title}
-                    className="product-image"
+                    className="w-full h-48 object-cover cursor-pointer"
                     onClick={() => navigate(`/details/${product._id}`)}
                   />
-                  <div className="image-overlay">
-                    <button
-                      className="view-details-btn"
-                      onClick={() => navigate(`/details/${product._id}`)}
-                    >
-                      <Eye size={18} />
-                      <span>View Details</span>
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => navigate(`/details/${product._id}`)}
+                    className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors duration-200"
+                  >
+                    <Eye size={18} className="text-gray-600" />
+                  </button>
                 </div>
+
                 {/* Product Info */}
-                <div className="product-info">
-                  <div className="product-category">{product.category}</div>
+                <div className="p-4">
+                  <span className="text-sm text-gray-500 uppercase font-medium">
+                    {product.category}
+                  </span>
+                  <h3
+                    className="text-lg font-semibold text-gray-900 mt-1 cursor-pointer hover:text-blue-600"
+                    onClick={() => navigate(`/details/${product._id}`)}
+                  >
+                    {product.title}
+                  </h3>
 
-                  <h3 className="product-title">{product.title}</h3>
-                  <div className="weight-section">
-                    <span className="weight">Weight in grams</span>
-                    <span className="weight-value">
-                      {product.weightInGrams}
-                    </span>
+                  {/* Sizes */}
+                  <div className="mt-2">
+                    <label
+                      htmlFor={`size-selector-${product._id}`}
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Select Size
+                    </label>
+                    <select
+                      id={`size-selector-${product._id}`}
+                      value={selectedSizes.get(product._id) || ""}
+                      onChange={(e) =>
+                        handleSizeChange(product._id, e.target.value)
+                      }
+                      className="w-full max-w-xs p-2 border rounded-md text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    >
+                      <option value="" disabled>
+                        Choose a size
+                      </option>
+                      {product.sizes?.length > 0 ? (
+                        product.sizes.map((s, idx) => (
+                          <option key={idx} value={s.size}>
+                            {s.size}
+                          </option>
+                        ))
+                      ) : (
+                        <option value="" disabled>
+                          No sizes listed
+                        </option>
+                      )}
+                    </select>
                   </div>
-                  {/* Rating (you can make this dynamic based on your data) */}
-                  {/* <div className="product-rating">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={16}
-                        fill={i < 4 ? "#FCD34D" : "none"}
-                        color={i < 4 ? "#FCD34D" : "#D1D5DB"}
-                      />
-                    ))}
-                    <span className="rating-text">(4.0)</span>
-                  </div> */}
 
-                  <div className="product-footer">
-                    <div className="price-section">
-                      <span className="currency">Rs</span>
-                      <span className="price">
-                        {product.finalPrice ?? product.price}
+                  {/* Footer with price + cart */}
+                  <div className="flex justify-between items-center mt-4">
+                    <div className="flex items-baseline">
+                      <span className="text-sm text-gray-600">Rs</span>
+                      <span className="text-lg font-semibold text-gray-900 ml-1">
+                        {product.price}
                       </span>
                     </div>
-
                     <button
-                      className={`add-to-cart-btn ${
-                        addedItems.has(product._id) ? "added" : ""
-                      }`}
                       onClick={() => handleAddToCart(product)}
+                      className={`flex items-center px-4 py-2 rounded-md text-white font-medium transition-all duration-200 ${
+                        addedItems.has(product._id)
+                          ? "bg-green-600"
+                          : "bg-blue-600 hover:bg-blue-700"
+                      }`}
                     >
                       {addedItems.has(product._id) ? (
                         <>
-                          <CheckCircle size={18} />
-                          <span>Added!</span>
+                          <CheckCircle size={18} className="mr-2" />
+                          Added
                         </>
                       ) : (
                         <>
-                          <ShoppingCart size={18} />
-                          <span>Add to Cart</span>
+                          <ShoppingCart size={18} className="mr-2" />
+                          Add to Cart
                         </>
                       )}
                     </button>
@@ -201,20 +234,20 @@ function Products() {
 
                   {/* Admin Controls */}
                   {role === "admin" && (
-                    <div className="admin-controls">
+                    <div className="flex justify-end space-x-2 mt-4">
                       <button
-                        className="admin-btn edit-btn"
                         onClick={() => navigate(`/edit/${product._id}`)}
+                        className="flex items-center px-3 py-1 text-sm text-blue-600 bg-blue-100 rounded-md hover:bg-blue-200 transition-colors duration-200"
                       >
-                        <Edit3 size={16} />
-                        <span>Edit</span>
+                        <Edit3 size={16} className="mr-1" />
+                        Edit
                       </button>
                       <button
-                        className="admin-btn delete-btn"
                         onClick={() => handleDelete(product)}
+                        className="flex items-center px-3 py-1 text-sm text-red-600 bg-red-100 rounded-md hover:bg-red-200 transition-colors duration-200"
                       >
-                        <Trash2 size={16} />
-                        <span>Delete</span>
+                        <Trash2 size={16} className="mr-1" />
+                        Delete
                       </button>
                     </div>
                   )}
@@ -223,12 +256,20 @@ function Products() {
             ))}
           </div>
         ) : (
-          <div className="empty-state">
-            <div className="empty-state-icon">
-              <ShoppingCart size={64} color="#D1D5DB" />
-            </div>
-            <h3>No products available</h3>
-            <p>Check back later for new products!</p>
+          <div className="text-center py-12">
+            <ShoppingCart size={64} className="mx-auto text-gray-400" />
+            <h3 className="text-xl font-semibold text-gray-900 mt-4">
+              No products available
+            </h3>
+            <p className="text-gray-600 mt-2">
+              Check back later for new shoes!
+            </p>
+            <button
+              onClick={() => navigate("/")}
+              className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
+            >
+              Back to Home
+            </button>
           </div>
         )}
       </div>
