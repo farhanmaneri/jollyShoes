@@ -53,11 +53,13 @@ function Products() {
     const cartItem = {
       ...product,
       selectedSize,
-      quantity: 1, // Default to 1 for simplicity on Products page
+      quantity: 1,
     };
 
     dispatch(add(cartItem));
-    setAddedItems((prev) => new Set([...prev, product._id]));
+    setAddedItems(
+      (prev) => new Set([...prev, `${product._id}-${selectedSize}`])
+    );
     toast.success("Added to cart!", {
       icon: "🛒",
       style: {
@@ -71,7 +73,7 @@ function Products() {
     setTimeout(() => {
       setAddedItems((prev) => {
         const newSet = new Set(prev);
-        newSet.delete(product._id);
+        newSet.delete(`${product._id}-${selectedSize}`);
         return newSet;
       });
     }, 2000);
@@ -213,12 +215,16 @@ function Products() {
                     <button
                       onClick={() => handleAddToCart(product)}
                       className={`flex items-center px-4 py-2 rounded-md text-white font-medium transition-all duration-200 ${
-                        addedItems.has(product._id)
+                        addedItems.has(
+                          `${product._id}-${selectedSizes.get(product._id)}`
+                        )
                           ? "bg-green-600"
                           : "bg-blue-600 hover:bg-blue-700"
                       }`}
                     >
-                      {addedItems.has(product._id) ? (
+                      {addedItems.has(
+                        `${product._id}-${selectedSizes.get(product._id)}`
+                      ) ? (
                         <>
                           <CheckCircle size={18} className="mr-2" />
                           Added

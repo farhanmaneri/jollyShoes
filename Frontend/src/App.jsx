@@ -6,7 +6,6 @@ import { getProducts } from "./redux/features/products/productsSlice";
 import Navbar from "./components/Navbar";
 import Loading from "./components/Loading";
 import Products from "./components/Products";
-import Details from "./components/Details";
 import ShoppingCart from "./components/ShoppingCart";
 import AuthProvider from './Auth/AuthProvider';
 // import { BrowserRouter as Router, Routes, Route } from "react-router-dom";

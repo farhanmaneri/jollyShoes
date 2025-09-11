@@ -6,7 +6,6 @@ import Home from "../components/Home";
 import React from "react";
 import Signup from "../pages/Signup";
 import ShoppingCart from "../components/ShoppingCart";
-import Details from "../components/Details";
 import SendEmail from "../pages/SendEmail";
 import Navbar from "../components/Navbar";
 import UpdateData from "../pages/UpdateData";
@@ -24,6 +23,7 @@ import PrivacyPolicy from "../pages/PrivacyPolicy";
 import OAuthCallback from "../pages/OAuthCallback";
 import GoldRateManager from "../components/GoldRateManager";
 import LayoutWithNavbar from "../components/LayoutWithNavbar";
+import SingleProduct from "../components/SingleProduct";
 
 const Routes = () => {
   const { token } = useAuth();
@@ -43,7 +43,7 @@ const Routes = () => {
         },
         {
           path: "details/:id",
-          element: <Details />,
+          element: <SingleProduct />,
         },
         {
           path: "login",

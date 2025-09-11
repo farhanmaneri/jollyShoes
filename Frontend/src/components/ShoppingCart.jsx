@@ -11,9 +11,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { MdShoppingCart, MdPayment } from "react-icons/md";
-import "../styles/ShoppingCart.css";
 import Navbar from "./Navbar.jsx";
-import { Toaster } from "react-hot-toast";
+import { Toaster, toast } from "react-hot-toast";
 
 function ShoppingCart() {
   const productsInShoppingCart = useSelector(
@@ -23,7 +22,7 @@ function ShoppingCart() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // ✅ Calculate totals with finalPrice fallback
+  // Calculate totals with finalPrice fallback
   function calculateTotalPrice() {
     return productsInShoppingCart.reduce((acc, product) => {
       const unitPrice = product.finalPrice ?? product.price;
@@ -39,6 +38,20 @@ function ShoppingCart() {
   const totalPrice = calculateTotalPrice();
   const shipping = totalPrice > 1000 ? 0 : 50;
   const finalTotal = totalPrice + shipping;
+
+  const handleClearCart = () => {
+    if (window.confirm("Are you sure you want to clear the cart?")) {
+      dispatch(clearCart());
+      toast.success("Cart cleared successfully", {
+        style: {
+          borderRadius: "10px",
+          background: "#EF4444",
+          color: "#fff",
+          fontWeight: "600",
+        },
+      });
+    }
+  };
 
   return (
     <>
@@ -63,94 +76,131 @@ function ShoppingCart() {
               <div className="lg:col-span-2 space-y-4">
                 <button
                   onClick={() => navigate("/")}
-                  className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium mb-4"
+                  className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium mb-4 transition-colors duration-200"
                 >
                   <AiOutlineArrowLeft />
                   Continue Shopping
                 </button>
 
-      {productsInShoppingCart.map((eachProduct, index) => {
-  const unitPrice = eachProduct.finalPrice ?? eachProduct.price;
-  const totalRowPrice = unitPrice * eachProduct.quantity;
+                {productsInShoppingCart.map((eachProduct, index) => {
+                  const unitPrice = eachProduct.finalPrice ?? eachProduct.price;
+                  const totalRowPrice = unitPrice * eachProduct.quantity;
+                  const sizeInfo = eachProduct.sizes?.find(
+                    (s) => s.size === Number(eachProduct.selectedSize)
+                  );
+                  const stock = sizeInfo ? sizeInfo.stock : 0;
 
-  return (
-    <div
-      key={index}
-      className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 hover:shadow-md transition-shadow"
-    >
-      <div className="flex flex-col sm:flex-row gap-4">
-        {/* Image */}
-        <div className="flex-shrink-0 self-center sm:self-start">
-          <img
-            src={eachProduct.image}
-            alt="product"
-            className="w-24 h-24 sm:w-20 sm:h-20 object-cover rounded-lg cursor-pointer hover:opacity-75 transition-opacity mx-auto sm:mx-0"
-            onClick={() => navigate(`/details/${eachProduct._id}`)}
-          />
-        </div>
+                  const handleIncrease = () => {
+                    if (eachProduct.quantity >= stock) {
+                      toast.error("Cannot add more, stock limit reached", {
+                        style: {
+                          borderRadius: "12px",
+                          background: "#EF4444",
+                          color: "#fff",
+                          fontWeight: "600",
+                        },
+                      });
+                      return;
+                    }
+                    dispatch(add({ ...eachProduct, quantity: 1 }));
+                  };
 
-        {/* Content */}
-        <div className="flex-1 space-y-3">
-          <div className="text-center sm:text-left">
-            <h3 className="font-semibold text-gray-800 text-lg">
-              {eachProduct.brand}
-            </h3>
-            <p className="text-gray-600 text-sm">{eachProduct.title}</p>
-            {eachProduct.weightInGrams > 0 && (
-              <p className="text-gray-600 text-sm">
-                Weight: {eachProduct.weightInGrams} grams
-              </p>
-            )}
-          </div>
+                  return (
+                    <div
+                      key={`${eachProduct._id}-${eachProduct.selectedSize}`}
+                      className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 hover:shadow-md transition-shadow duration-200"
+                    >
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        {/* Image */}
+                        <div className="flex-shrink-0 self-center sm:self-start">
+                          <img
+                            src={eachProduct.image}
+                            alt={eachProduct.title}
+                            className="w-24 h-24 sm:w-20 sm:h-20 object-cover rounded-lg cursor-pointer hover:opacity-75 transition-opacity duration-200 mx-auto sm:mx-0"
+                            onClick={() =>
+                              navigate(`/details/${eachProduct._id}`)
+                            }
+                          />
+                        </div>
 
-          {/* Controls */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            {/* Quantity Controls */}
-            <div className="flex items-center justify-center sm:justify-start gap-3">
-              <button
-                onClick={() => dispatch(removeOne(eachProduct._id))}
-                disabled={eachProduct.quantity < 2}
-                className="w-10 h-10 sm:w-8 sm:h-8 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:border-indigo-600 hover:text-indigo-600 transition-colors"
-              >
-                -
-              </button>
-              <span className="font-semibold min-w-[3rem] sm:min-w-[2rem] text-center text-lg sm:text-base">
-                {eachProduct.quantity}
-              </span>
-              <button
-                onClick={() => dispatch(add(eachProduct))}
-                className="w-10 h-10 sm:w-8 sm:h-8 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold hover:border-indigo-600 hover:text-indigo-600 transition-colors"
-              >
-                +
-              </button>
-            </div>
+                        {/* Content */}
+                        <div className="flex-1 space-y-3">
+                          <div className="text-center sm:text-left">
+                            <h3 className="font-semibold text-gray-800 text-lg">
+                              {eachProduct.brand}
+                            </h3>
+                            <p className="text-gray-600 text-sm">
+                              {eachProduct.title}
+                            </p>
+                            <p className="text-gray-600 text-sm">
+                              Size: {eachProduct.selectedSize}
+                            </p>
+                            {eachProduct.weightInGrams > 0 && (
+                              <p className="text-gray-600 text-sm">
+                                Weight: {eachProduct.weightInGrams} grams
+                              </p>
+                            )}
+                          </div>
 
-            {/* Price + Delete */}
-            <div className="flex items-center justify-center sm:justify-end gap-4">
-              <div className="text-center sm:text-right">
-                {/* ✅ Total row price */}
-                <div className="font-bold text-xl sm:text-lg text-gray-800">
-                  Rs. {totalRowPrice.toLocaleString()}
-                </div>
-                {/* ✅ Always show per-unit price */}
-                <div className="text-sm text-gray-500">
-                  Rs. {unitPrice.toLocaleString()} each
-                </div>
-              </div>
-              <button
-                onClick={() => dispatch(remove(eachProduct._id))}
-                className="text-red-500 hover:text-red-700 p-3 sm:p-2 hover:bg-red-50 rounded-full transition-colors"
-              >
-                <FaTrashAlt className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-})}
+                          {/* Controls */}
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            {/* Quantity Controls */}
+                            <div className="flex items-center justify-center sm:justify-start gap-3">
+                              <button
+                                onClick={() =>
+                                  dispatch(
+                                    removeOne({
+                                      _id: eachProduct._id,
+                                      selectedSize: eachProduct.selectedSize,
+                                    })
+                                  )
+                                }
+                                disabled={eachProduct.quantity < 2}
+                                className="w-10 h-10 sm:w-8 sm:h-8 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:border-indigo-600 hover:text-indigo-600 transition-colors duration-200"
+                              >
+                                -
+                              </button>
+                              <span className="font-semibold min-w-[3rem] sm:min-w-[2rem] text-center text-lg sm:text-base">
+                                {eachProduct.quantity}
+                              </span>
+                              <button
+                                onClick={handleIncrease}
+                                className="w-10 h-10 sm:w-8 sm:h-8 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold hover:border-indigo-600 hover:text-indigo-600 transition-colors duration-200"
+                              >
+                                +
+                              </button>
+                            </div>
 
+                            {/* Price + Delete */}
+                            <div className="flex items-center justify-center sm:justify-end gap-4">
+                              <div className="text-center sm:text-right">
+                                <div className="font-bold text-xl sm:text-lg text-gray-800">
+                                  Rs. {totalRowPrice.toLocaleString()}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  Rs. {unitPrice.toLocaleString()} each
+                                </div>
+                              </div>
+                              <button
+                                onClick={() =>
+                                  dispatch(
+                                    remove({
+                                      _id: eachProduct._id,
+                                      selectedSize: eachProduct.selectedSize,
+                                    })
+                                  )
+                                }
+                                className="text-red-500 hover:text-red-700 p-3 sm:p-2 hover:bg-red-50 rounded-full transition-colors duration-200"
+                              >
+                                <FaTrashAlt className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Order Summary */}
@@ -191,7 +241,7 @@ function ShoppingCart() {
                   <div className="space-y-6">
                     <button
                       onClick={() => navigate("/checkout")}
-                      className="w-full bg-indigo-600 text-white font-semibold py-4 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                      className="w-full bg-indigo-600 text-white font-semibold py-4 rounded-lg hover:bg-indigo-700 transition-colors duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                     >
                       <MdPayment className="text-lg" />
                       Proceed to Checkout
@@ -208,8 +258,8 @@ function ShoppingCart() {
                     </div>
 
                     <button
-                      onClick={() => dispatch(clearCart())}
-                      className="w-full border-2 border-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:border-red-400 hover:text-red-600 transition-colors"
+                      onClick={handleClearCart}
+                      className="w-full border-2 border-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:border-red-400 hover:text-red-600 transition-colors duration-200"
                     >
                       Clear Cart
                     </button>

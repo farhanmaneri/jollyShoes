@@ -23,6 +23,16 @@ function SingleProduct(props) {
   const [selectedSize, setSelectedSize] = useState("");
 
   const product = props.productDetails;
+
+  // Early return if product not yet loaded
+  if (!product) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-gray-500">Loading product...</p>
+      </div>
+    );
+  }
+
   const productImages = [product.image];
 
   // Handlers

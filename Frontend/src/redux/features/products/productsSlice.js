@@ -7,7 +7,7 @@ const initialState = {
 };
 const API =
   import.meta.env.MODE === "production"
-    ? import.meta.env.VITE_API_PROD
+    ? import.meta.env.VITE_API_PROD 
     : import.meta.env.VITE_API_DEV;
 
 // The async function to fetch products from the API

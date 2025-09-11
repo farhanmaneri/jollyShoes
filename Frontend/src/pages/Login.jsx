@@ -136,12 +136,12 @@ function Login() {
           </div>
 
           {/* google Login Button */}
-          <button
+          {/* <button
             onClick={handleGoogleLogin}
             className="w-full flex items-center justify-center gap-2 py-3 bg-sky-500 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-300"
           >
             <FaGoogle size={20} /> Continue with Google
-          </button>
+          </button> */}
           {/* <button
             onClick={handleFacebookLogin}
             className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-300"

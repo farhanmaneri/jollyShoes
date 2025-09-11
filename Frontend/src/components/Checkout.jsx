@@ -63,13 +63,10 @@ const Checkout = () => {
       ? import.meta.env.VITE_API_PROD
       : import.meta.env.VITE_API_DEV;
 
-  // const handleGoogleLogin = () => {
-  //   window.location.href = `${API}/auth/google`;
-  // };
-const handleGoogleLogin = () => {
-  const redirectUrl = window.location.pathname // 👈 current page (checkout)
-  window.location.href = `${API}/auth/google?redirectUrl=${redirectUrl}`;
-};
+  const handleGoogleLogin = () => {
+    const redirectUrl = window.location.pathname; // Current page (checkout)
+    window.location.href = `${API}/auth/google?redirectUrl=${redirectUrl}`;
+  };
 
   const {
     register,
@@ -102,7 +99,14 @@ const handleGoogleLogin = () => {
             localStorage.removeItem("token");
             setToken(null);
             navigate("/login");
-            toast.error("Session expired. Please login again.");
+            toast.error("Session expired. Please login again.", {
+              style: {
+                borderRadius: "10px",
+                background: "#EF4444",
+                color: "#fff",
+                fontWeight: "600",
+              },
+            });
           }
         }
       }
@@ -130,19 +134,11 @@ const handleGoogleLogin = () => {
   const handleLogin = async (data) => {
     setIsLoading(true);
     try {
-      console.log("Sending login request to:", `${API}/auth/login`);
-      console.log("Login payload:", {
-        email: data.email,
-        password: data.password,
-      });
-
       const response = await axios.post(
         `${API}/auth/login`,
         { email: data.email, password: data.password },
         { headers: { "Content-Type": "application/json" } }
       );
-
-      console.log("Login response:", response.data);
 
       const result = response.data.data;
 
@@ -151,20 +147,37 @@ const handleGoogleLogin = () => {
         localStorage.setItem("token", result.token);
         setToken(result.token);
         setShowLogin(false);
-        toast.success("Login successful 🎉");
+        toast.success("Login successful 🎉", {
+          style: {
+            borderRadius: "10px",
+            background: "#10B981",
+            color: "#fff",
+            fontWeight: "600",
+          },
+        });
       } else {
-        toast.error("Login failed - no token received");
+        toast.error("Login failed - no token received", {
+          style: {
+            borderRadius: "10px",
+            background: "#EF4444",
+            color: "#fff",
+            fontWeight: "600",
+          },
+        });
       }
     } catch (error) {
-      console.error("Login error:", {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-      });
       toast.error(
         error.response?.data?.message ||
           error.response?.data?.error ||
-          "Invalid email or password ❌"
+          "Invalid email or password ❌",
+        {
+          style: {
+            borderRadius: "10px",
+            background: "#EF4444",
+            color: "#fff",
+            fontWeight: "600",
+          },
+        }
       );
     } finally {
       setIsLoading(false);
@@ -181,18 +194,39 @@ const handleGoogleLogin = () => {
         name: data.userName,
         purpose: "order_verification",
         totalAmount: totalPrice,
-        itemCount: productsInCart.length,
+        itemCount: totalItems,
       });
       if (response.data.success) {
         setServerOtp(response.data.code || response.data.otp);
-        toast.success(`OTP sent to ${data.email}!`);
+        toast.success(`OTP sent to ${data.email}!`, {
+          style: {
+            borderRadius: "10px",
+            background: "#10B981",
+            color: "#fff",
+            fontWeight: "600",
+          },
+        });
         setIsOTPStage(true);
         setResendTimer(30);
       } else {
-        toast.error(response.data.message);
+        toast.error(response.data.message, {
+          style: {
+            borderRadius: "10px",
+            background: "#EF4444",
+            color: "#fff",
+            fontWeight: "600",
+          },
+        });
       }
     } catch (error) {
-      toast.error("Error sending OTP. Try again.");
+      toast.error("Error sending OTP. Try again.", {
+        style: {
+          borderRadius: "10px",
+          background: "#EF4444",
+          color: "#fff",
+          fontWeight: "600",
+        },
+      });
     } finally {
       setIsLoading(false);
     }
@@ -210,7 +244,14 @@ const handleGoogleLogin = () => {
     if (otp === serverOtp) {
       await placeOrder(formData);
     } else {
-      toast.error("Invalid OTP! Please try again.");
+      toast.error("Invalid OTP! Please try again.", {
+        style: {
+          borderRadius: "10px",
+          background: "#EF4444",
+          color: "#fff",
+          fontWeight: "600",
+        },
+      });
     }
   };
 
@@ -227,23 +268,55 @@ const handleGoogleLogin = () => {
   const placeOrder = async (data) => {
     try {
       const orderData = {
-        products: productsInCart,
+        products: productsInCart.map((product) => ({
+          _id: product._id,
+          selectedSize: product.selectedSize,
+          quantity: product.quantity,
+          price: product.finalPrice ?? product.price,
+          title: product.title,
+          brand: product.brand,
+          weightInGrams: product.weightInGrams,
+          image: product.image,
+        })),
         totalPrice,
         contact: data.contact,
         address: data.address,
         email: data.email,
         userName: data.userName,
       };
-      const res = await axios.post(`${API}/auth/place-order`, orderData);
+      const res = await axios.post(`${API}/auth/place-order`, orderData, {
+        headers: { Authorization: `Bearer ${token || ""}` },
+      });
       if (res.data.success) {
-        toast.success("Order placed successfully!");
+        toast.success("Order placed successfully!", {
+          style: {
+            borderRadius: "10px",
+            background: "#10B981",
+            color: "#fff",
+            fontWeight: "600",
+          },
+        });
         dispatch(clearCart());
         navigate("/");
       } else {
-        toast.error(res.data.message);
+        toast.error(res.data.message, {
+          style: {
+            borderRadius: "10px",
+            background: "#EF4444",
+            color: "#fff",
+            fontWeight: "600",
+          },
+        });
       }
     } catch (error) {
-      toast.error("Error placing order. Try again.");
+      toast.error("Error placing order. Try again.", {
+        style: {
+          borderRadius: "10px",
+          background: "#EF4444",
+          color: "#fff",
+          fontWeight: "600",
+        },
+      });
     }
   };
 
@@ -263,7 +336,7 @@ const handleGoogleLogin = () => {
             </p>
             <button
               onClick={() => navigate("/")}
-              className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+              className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors duration-200"
             >
               Continue Shopping
             </button>
@@ -283,7 +356,7 @@ const handleGoogleLogin = () => {
           <div className="mb-6 sm:mb-8">
             <button
               onClick={() => navigate("/shopping-cart")}
-              className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium mb-4"
+              className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium mb-4 transition-colors duration-200"
             >
               <AiOutlineArrowLeft />
               Back to Cart
@@ -303,7 +376,7 @@ const handleGoogleLogin = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
             <div className="lg:col-span-2 space-y-6">
-              {/* Order Summary - Now with better mobile layout */}
+              {/* Order Summary */}
               <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
                 <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
                   <MdShoppingCart className="text-indigo-600" />
@@ -312,8 +385,8 @@ const handleGoogleLogin = () => {
                 <div className="space-y-3 sm:space-y-4 max-h-64 sm:max-h-80 overflow-y-auto">
                   {productsInCart.map((product) => (
                     <div
-                      key={product._id}
-                      className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3 border border-gray-100 rounded-lg"
+                      key={`${product._id}-${product.selectedSize}`}
+                      className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors duration-200"
                     >
                       <img
                         src={product.image}
@@ -326,8 +399,11 @@ const handleGoogleLogin = () => {
                         </h3>
                         <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 mt-1">
                           <p>{product.brand}</p>
+                          <p>Size: {product.selectedSize}</p>
                           <p>Qty: {product.quantity}</p>
-                          <p>Weight: {product.weightInGrams}g</p>
+                          {product.weightInGrams > 0 && (
+                            <p>Weight: {product.weightInGrams}g</p>
+                          )}
                         </div>
                       </div>
                       <div className="text-right w-full sm:w-auto flex justify-between sm:block">
@@ -380,7 +456,7 @@ const handleGoogleLogin = () => {
                         </div>
                         <button
                           onClick={() => setShowLogin(!showLogin)}
-                          className="w-full bg-indigo-600 text-white font-semibold px-4 sm:px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors text-sm sm:text-base"
+                          className="w-full bg-indigo-600 text-white font-semibold px-4 sm:px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors duration-200 text-sm sm:text-base"
                         >
                           {showLogin ? "Close" : "Sign In to Your Account"}
                         </button>
@@ -464,7 +540,7 @@ const handleGoogleLogin = () => {
                               <button
                                 type="submit"
                                 disabled={isLoading}
-                                className={`w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base ${
+                                className={`w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition-colors duration-200 flex items-center justify-center gap-2 text-sm sm:text-base ${
                                   isLoading
                                     ? "opacity-50 cursor-not-allowed"
                                     : ""
@@ -485,13 +561,14 @@ const handleGoogleLogin = () => {
                             </div>
 
                             {/* Google button */}
-                            <button
+                            {/* <button
                               type="button"
                               onClick={handleGoogleLogin}
-                              className="w-full flex items-center justify-center gap-2 py-3 bg-sky-500 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-300 text-sm sm:text-base"
+                              className="w-full flex items-center justify-center gap-2 py-3 bg-sky-500 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 text-sm sm:text-base"
                             >
-                              <FaGoogle size={20} /> Continue with Google
-                            </button>
+                              <FaGoogle size={20} />
+                              Continue with Google
+                            </button> */}
                           </div>
                         )}
                       </div>
@@ -591,7 +668,7 @@ const handleGoogleLogin = () => {
                           <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-green-600 text-white font-semibold py-4 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
+                            className="w-full bg-green-600 text-white font-semibold py-4 rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
                           >
                             <MdEmail />
                             {isLoading
@@ -628,7 +705,7 @@ const handleGoogleLogin = () => {
                             onChange={(e) => setOtp(e.target.value)}
                             ref={otpInputRef}
                             maxLength="6"
-                            className="w-full text-center text-xl sm:text-2xl font-bold tracking-widest border-2 border-gray-300 rounded-lg py-4 focus:outline-none focus:border-indigo-500"
+                            className="w-full text-center text-xl sm:text-2xl font-bold tracking-widest border-2 border-gray-300 rounded-lg py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                             required
                           />
                         </div>
@@ -642,7 +719,7 @@ const handleGoogleLogin = () => {
                             <button
                               type="button"
                               onClick={handleResendOTP}
-                              className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium mx-auto text-sm"
+                              className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium mx-auto text-sm transition-colors duration-200"
                             >
                               <MdRefresh />
                               Resend Code
@@ -651,7 +728,7 @@ const handleGoogleLogin = () => {
                         </div>
                         <button
                           type="submit"
-                          className="w-full bg-indigo-600 text-white font-semibold py-4 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
+                          className="w-full bg-indigo-600 text-white font-semibold py-4 rounded-lg hover:bg-indigo-700 transition-colors duration-200 flex items-center justify-center gap-2 text-sm sm:text-base"
                         >
                           <MdVerifiedUser />
                           Verify & Place Order
@@ -659,7 +736,7 @@ const handleGoogleLogin = () => {
                       </form>
                       <button
                         onClick={() => setIsOTPStage(false)}
-                        className="text-gray-500 hover:text-gray-700 mt-4 text-sm"
+                        className="text-gray-500 hover:text-gray-700 mt-4 text-sm transition-colors duration-200"
                       >
                         ← Change email address
                       </button>
@@ -731,7 +808,7 @@ const handleGoogleLogin = () => {
                           <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-indigo-600 text-white font-semibold py-4 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
+                            className="w-full bg-indigo-600 text-white font-semibold py-4 rounded-lg hover:bg-indigo-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
                           >
                             <MdPayment />
                             {isLoading ? "Placing Order..." : "Place Order"}
@@ -749,7 +826,7 @@ const handleGoogleLogin = () => {
               </div>
             </div>
 
-            {/* Order Total Sidebar - Now responsive */}
+            {/* Order Total Sidebar */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-lg shadow-lg border p-4 sm:p-6 lg:sticky lg:top-24">
                 <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">
