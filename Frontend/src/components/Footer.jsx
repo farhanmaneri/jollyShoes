@@ -36,7 +36,7 @@ export default function Footer() {
 
   const handleWhatsAppClick = () => {
     const message = "Hi! I'm interested in your products. Can you help me?";
-    const whatsappUrl = `https://wa.me/923326033144?text=${encodeURIComponent(
+    const whatsappUrl = `https://wa.me/9239516658?text=${encodeURIComponent(
       message
     )}`;
     window.open(whatsappUrl, "_blank");
@@ -161,7 +161,7 @@ export default function Footer() {
                   <div>
                     <p className="contact-label">Address</p>
                     <p className="contact-value">
-                      ------ Market,
+                      Shop No. 1 PukhtunKhwa Plaza
                       <br />
                       Link Road, Swabi
                     </p>
@@ -173,9 +173,9 @@ export default function Footer() {
                   <div>
                     <p className="contact-label">Store Hours</p>
                     <p className="contact-value">
-                      Mon - Sat: 9:00 AM - 9:00 PM
+                      Mon - Sunday: 8:00 AM - 6:00 PM
                       <br />
-                      Sunday: 10:00 AM - 8:00 PM
+                      Friday : Closed
                     </p>
                   </div>
                 </div>
