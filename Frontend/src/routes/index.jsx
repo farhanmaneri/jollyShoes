@@ -24,6 +24,7 @@ import OAuthCallback from "../pages/OAuthCallback";
 import GoldRateManager from "../components/GoldRateManager";
 import LayoutWithNavbar from "../components/LayoutWithNavbar";
 import SingleProduct from "../components/SingleProduct";
+import Details from "../components/Details";
 
 const Routes = () => {
   const { token } = useAuth();
@@ -43,7 +44,7 @@ const Routes = () => {
         },
         {
           path: "details/:id",
-          element: <SingleProduct />,
+          element: <Details />,
         },
         {
           path: "login",

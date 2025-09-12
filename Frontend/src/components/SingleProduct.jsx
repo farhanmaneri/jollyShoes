@@ -23,37 +23,12 @@ function SingleProduct(props) {
   const [selectedSize, setSelectedSize] = useState("");
 
   const product = props.productDetails;
-
-  // Early return if product not yet loaded
-  if (!product) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-gray-500">Loading product...</p>
-      </div>
-    );
-  }
-
   const productImages = [product.image];
 
   // Handlers
   const handleAddToCart = () => {
     if (!selectedSize) {
       toast.error("Please select a size first", {
-        style: {
-          borderRadius: "12px",
-          background: "#EF4444",
-          color: "#fff",
-          fontWeight: "600",
-        },
-      });
-      return;
-    }
-
-    const sizeInfo = product.sizes?.find(
-      (s) => s.size === Number(selectedSize)
-    );
-    if (!sizeInfo || sizeInfo.stock < quantity) {
-      toast.error("Not enough stock available", {
         style: {
           borderRadius: "12px",
           background: "#EF4444",
@@ -72,17 +47,6 @@ function SingleProduct(props) {
 
     dispatch(add(cartItem));
     setIsAdded(true);
-
-    toast.success(`Added ${quantity} item(s) to cart!`, {
-      icon: "🛒",
-      style: {
-        borderRadius: "12px",
-        background: "#10B981",
-        color: "#fff",
-        fontWeight: "600",
-      },
-      duration: 3000,
-    });
 
     setTimeout(() => setIsAdded(false), 3000);
   };
@@ -143,6 +107,16 @@ function SingleProduct(props) {
     const maxStock =
       product.sizes?.find((s) => s.size === Number(selectedSize))?.stock || 1;
     if (quantity < maxStock) setQuantity(quantity + 1);
+    else {
+      toast.error("Cannot add more, stock limit reached", {
+        style: {
+          borderRadius: "12px",
+          background: "#EF4444",
+          color: "#fff",
+          fontWeight: "600",
+        },
+      });
+    }
   };
 
   const decreaseQuantity = () => {
