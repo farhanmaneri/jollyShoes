@@ -39,6 +39,33 @@ function SingleProduct(props) {
       return;
     }
 
+    const sizeInfo = product.sizes?.find(
+      (s) => s.size === Number(selectedSize)
+    );
+    if (!sizeInfo || sizeInfo.stock === 0) {
+      toast.error(`Size ${selectedSize} is out of stock`, {
+        style: {
+          borderRadius: "12px",
+          background: "#EF4444",
+          color: "#fff",
+          fontWeight: "600",
+        },
+      });
+      return;
+    }
+
+    if (!sizeInfo || sizeInfo.stock < quantity) {
+      toast.error("Not enough stock available", {
+        style: {
+          borderRadius: "12px",
+          background: "#EF4444",
+          color: "#fff",
+          fontWeight: "600",
+        },
+      });
+      return;
+    }
+
     const cartItem = {
       ...product,
       selectedSize,
@@ -47,6 +74,17 @@ function SingleProduct(props) {
 
     dispatch(add(cartItem));
     setIsAdded(true);
+
+    toast.success(`Added ${quantity} item(s) to cart!`, {
+      icon: "🛒",
+      style: {
+        borderRadius: "12px",
+        background: "#10B981",
+        color: "#fff",
+        fontWeight: "600",
+      },
+      duration: 3000,
+    });
 
     setTimeout(() => setIsAdded(false), 3000);
   };
@@ -67,6 +105,18 @@ function SingleProduct(props) {
     const sizeInfo = product.sizes?.find(
       (s) => s.size === Number(selectedSize)
     );
+    if (!sizeInfo || sizeInfo.stock === 0) {
+      toast.error(`Size ${selectedSize} is out of stock`, {
+        style: {
+          borderRadius: "12px",
+          background: "#EF4444",
+          color: "#fff",
+          fontWeight: "600",
+        },
+      });
+      return;
+    }
+
     if (!sizeInfo || sizeInfo.stock < quantity) {
       toast.error("Not enough stock available", {
         style: {
@@ -221,8 +271,8 @@ function SingleProduct(props) {
                     Choose a size
                   </option>
                   {product.sizes.map((s, idx) => (
-                    <option key={idx} value={s.size}>
-                      {s.size}
+                    <option key={idx} value={s.size} disabled={s.stock === 0}>
+                      {s.size} {s.stock === 0 && "(Out of Stock)"}
                     </option>
                   ))}
                 </select>

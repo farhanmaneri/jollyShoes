@@ -29,9 +29,11 @@ const OrderSchema = new mongoose.Schema(
         title: { type: String, required: true },
         price: { type: Number, required: true },
         quantity: { type: Number, required: true },
-        image: String, // Add image field
-
+        size: { type: mongoose.Schema.Types.Mixed, required: true }, // Add size field - crucial for shoes!
+        image: String,
         description: { type: String },
+        brand: { type: String }, // Add brand if needed
+        weightInGrams: { type: Number }, // Add weight if needed
       },
     ],
     totalPrice: {
@@ -51,6 +53,6 @@ const OrderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
 const Order = mongoose.model("Order", OrderSchema);
 module.exports = Order;
-// uniqueness of Order in db removed

@@ -11,14 +11,11 @@ const session = require("express-session");
 const passport = require("./config/passport.js");
 require("./config/passport");
 const AdminRoutes = require("./routes/AdminRoutes");
-const AuthRoutes = require("./routes/Auth");
+const AuthRoutes = require("./routes/Auth"); // 👈 This import is correct
 
 // Create express app
 const app = express();
-const port = process.env.PORT || 3000;
-
-
-
+const port = process.env.PORT || 5000; // Use only this declaration
 // ✅ Pick allowed origins dynamically
 const allowedOrigins =
   process.env.NODE_ENV === "production"
@@ -46,15 +43,12 @@ app.use(
 
 // console.log("✅ Allowed Origins:", allowedOrigins);
 
-// ... your routes here
-// testing
-
 // ✅ Handle preflight OPTIONS requests
 app.options("*", cors());
 
 // ✅ Middleware
 app.use(morgan("tiny"));
-app.use(express.json());
+app.use(express.json()); // 👈 ENSURE THIS IS BEFORE ROUTES
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // ✅ Debug origin logging
@@ -67,7 +61,7 @@ app.use((req, res, next) => {
 const dbConnection = async () => {
   try {
     const connectionURI = process.env.MONGODB_CONNECTION_URI;
-// // console.log("🔗 MongoDB Connection URI:", connectionURI);
+    // // console.log("🔗 MongoDB Connection URI:", connectionURI);
     if (!connectionURI) {
       // console.error("❌ MONGODB_CONNECTION_URI is missing in .env");
       return;
@@ -81,10 +75,12 @@ const dbConnection = async () => {
 };
 
 dbConnection();
+
 // ✅ Add root route
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the Jolly Shoes Backend API" });
 });
+
 // ✅ Test Route
 app.get("/test", (req, res) => {
   res.json({ message: "✅ Server is running successfully!" });
@@ -100,12 +96,50 @@ app.use(
 
 // Initialize Passport
 app.use(passport.initialize());
-// ✅ Routes
+
+// 👈 FIXED: MOUNT ROUTES HERE (AFTER MIDDLEWARE, BEFORE ERROR HANDLER)
+
+// Add this right after mounting your routes in index.js
+// Add this RIGHT BEFORE your route mounting in server file
+
+// Debug middleware to catch all requests
+app.use((req, res, next) => {
+  console.log(`🔍 Incoming: ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+// Mount routes (ONLY ONCE)
 app.use("/admin", AdminRoutes);
 app.use("/auth", AuthRoutes);
 
-//  Needed for Passport
+// Add specific debug for place-order
+app.use('/auth/place-order', (req, res, next) => {
+  console.log('🎯 Intercepted /auth/place-order request');
+  console.log('Method:', req.method);
+  console.log('Headers:', req.headers);
+  console.log('Body:', req.body);
+  next();
+});
 
+// Catch-all for 404s (add this at the very end, after all routes)
+app.use('*', (req, res) => {
+  console.log(`❌ 404 - Route not found: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.method} ${req.originalUrl} not found`,
+    timestamp: new Date().toISOString()
+  });
+});
+
+
+// Add this debug middleware IMMEDIATELY after mounting auth routes
+
+
+// Add catch-all debug for auth routes
+
+  // Check if the route exists in AuthRoutes
+ 
+//  Needed for Passport
 
 app.use((err, req, res, next) => {
   // console.error("❌ Server Error:", err.message);
@@ -118,64 +152,10 @@ app.use((err, req, res, next) => {
 
 // ✅ Only start server if not running on Vercel
 if (process.env.NODE_ENV !== "production") {
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 5000; // 👈 Changed to 5000 to match your logs
   app.listen(port, () => {
     console.log(`🚀 Server is running on port ${port}`);
   });
 }
-// ✅ Debug: Check if routes file exists and loads
-// // console.log("🔍 Checking routes...");
-
-// try {
-//   const AuthRoutes = require("./routes/Auth");
-//   // console.log("✅ Auth routes loaded successfully");
-//   // console.log("🔍 Auth routes type:", typeof AuthRoutes);
-  
-//   // List all registered routes
-//   if (AuthRoutes && AuthRoutes.stack) {
-//     // console.log("📋 Registered routes in AuthRoutes:");
-//     AuthRoutes.stack.forEach(layer => {
-//       if (layer.route) {
-//         const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();
-//         // console.log(`  ${methods} ${layer.route.path}`);
-//       }
-//     });
-//   }
-// } catch (error) {
-//   // console.error("❌ Error loading Auth routes:", error.message);
-//   // console.error("❌ Full error:", error);
-// }
-
-// // ✅ Debug: List all registered routes on the app
-// // console.log("📋 All registered app routes:");
-// app._router.stack.forEach((middleware, index) => {
-//   if (middleware.route) {
-//     // Direct route
-//     const methods = Object.keys(middleware.route.methods).join(', ').toUpperCase();
-//     // console.log(`  ${methods} ${middleware.route.path}`);
-//   } else if (middleware.name === 'router') {
-//     // Router middleware
-//     // console.log(`  Router: ${middleware.regexp.source}`);
-//     if (middleware.handle && middleware.handle.stack) {
-//       middleware.handle.stack.forEach(layer => {
-//         if (layer.route) {
-//           const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();
-//           // console.log(`    ${methods} ${layer.route.path}`);
-//         }
-//       });
-//     }
-//   }
-// });
-
-// // ✅ Test route to verify app is working
-// app.get("/debug-test", (req, res) => {
-//   res.json({ 
-//     message: "Debug route working",
-//     timestamp: new Date().toISOString()
-//   });
-// });
-
-// // console.log("🔗 Test debug route: http://localhost:3000/debug-test");
 
 module.exports = app; // needed for Vercel
-

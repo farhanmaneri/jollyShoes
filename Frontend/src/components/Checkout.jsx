@@ -41,7 +41,6 @@ const Checkout = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // OTP resend logic
   const [resendTimer, setResendTimer] = useState(0);
   const otpInputRef = useRef(null);
 
@@ -64,7 +63,7 @@ const Checkout = () => {
       : import.meta.env.VITE_API_DEV;
 
   const handleGoogleLogin = () => {
-    const redirectUrl = window.location.pathname; // Current page (checkout)
+    const redirectUrl = window.location.pathname;
     window.location.href = `${API}/auth/google?redirectUrl=${redirectUrl}`;
   };
 
@@ -80,7 +79,6 @@ const Checkout = () => {
     formState: { errors: loginErrors },
   } = useForm();
 
-  // Fetch user profile
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (token) {
@@ -114,7 +112,6 @@ const Checkout = () => {
     fetchUserProfile();
   }, [token, navigate, setToken]);
 
-  // Timer countdown for resend
   useEffect(() => {
     let timer;
     if (resendTimer > 0) {
@@ -123,14 +120,12 @@ const Checkout = () => {
     return () => clearTimeout(timer);
   }, [resendTimer]);
 
-  // Auto-focus OTP input
   useEffect(() => {
     if (isOTPStage && otpInputRef.current) {
       otpInputRef.current.focus();
     }
   }, [isOTPStage]);
 
-  // Handle login
   const handleLogin = async (data) => {
     setIsLoading(true);
     try {
@@ -184,7 +179,6 @@ const Checkout = () => {
     }
   };
 
-  // Send OTP for guest user
   const handleSendOTP = async (data) => {
     setIsLoading(true);
     try {
@@ -232,13 +226,11 @@ const Checkout = () => {
     }
   };
 
-  // Resend OTP
   const handleResendOTP = async () => {
     if (resendTimer > 0) return;
     await handleSendOTP(formData);
   };
 
-  // Verify OTP and place order for guest
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
     if (otp === serverOtp) {
@@ -255,7 +247,6 @@ const Checkout = () => {
     }
   };
 
-  // Direct order placement for logged-in user
   const handlePlaceOrderDirect = async (data) => {
     await placeOrder({
       ...data,
@@ -264,7 +255,7 @@ const Checkout = () => {
     });
   };
 
-  // Common order placement
+  // Updated placeOrder function in your Checkout component
   const placeOrder = async (data) => {
     try {
       const orderData = {
@@ -284,10 +275,18 @@ const Checkout = () => {
         email: data.email,
         userName: data.userName,
       };
-      const res = await axios.post(`${API}/auth/place-order`, orderData, {
-        headers: { Authorization: `Bearer ${token || ""}` },
-      });
-      if (res.data.success) {
+
+      // Place order (stock will be updated automatically by backend)
+      const orderResponse = await axios.post(
+        `${API}/auth/place-order`,
+        orderData,
+        {
+          headers: { Authorization: `Bearer ${token || ""}` },
+        }
+      );
+
+      if (orderResponse.data.success) {
+        // Remove the redundant stock update call - backend already handles it
         toast.success("Order placed successfully!", {
           style: {
             borderRadius: "10px",
@@ -299,7 +298,7 @@ const Checkout = () => {
         dispatch(clearCart());
         navigate("/");
       } else {
-        toast.error(res.data.message, {
+        toast.error(orderResponse.data.message, {
           style: {
             borderRadius: "10px",
             background: "#EF4444",
@@ -309,7 +308,10 @@ const Checkout = () => {
         });
       }
     } catch (error) {
-      toast.error("Error placing order. Try again.", {
+      console.error("Order placement error:", error);
+      const errorMessage =
+        error.response?.data?.message || "Error placing order. Try again.";
+      toast.error(errorMessage, {
         style: {
           borderRadius: "10px",
           background: "#EF4444",
@@ -320,7 +322,6 @@ const Checkout = () => {
     }
   };
 
-  // Empty cart check
   if (productsInCart.length === 0) {
     return (
       <>
@@ -376,7 +377,6 @@ const Checkout = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
             <div className="lg:col-span-2 space-y-6">
-              {/* Order Summary */}
               <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
                 <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
                   <MdShoppingCart className="text-indigo-600" />
@@ -432,7 +432,6 @@ const Checkout = () => {
                 </div>
               </div>
 
-              {/* User Authentication/Checkout Form */}
               <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
                 {!token ? (
                   !isOTPStage ? (
@@ -441,7 +440,6 @@ const Checkout = () => {
                         Choose Your Option
                       </h2>
 
-                      {/* Login Option */}
                       <div className="bg-indigo-50 border-2 border-indigo-200 rounded-lg p-4 sm:p-6 mb-6">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
                           <MdLogin className="text-2xl text-indigo-600 flex-shrink-0" />
@@ -461,7 +459,6 @@ const Checkout = () => {
                           {showLogin ? "Close" : "Sign In to Your Account"}
                         </button>
 
-                        {/* Login Dropdown */}
                         {showLogin && (
                           <div className="mt-4 border-t pt-4">
                             <form
@@ -551,7 +548,6 @@ const Checkout = () => {
                               </button>
                             </form>
 
-                            {/* Divider */}
                             <div className="flex items-center my-6">
                               <hr className="flex-1 border-gray-300" />
                               <span className="px-2 text-gray-500 text-sm">
@@ -560,20 +556,18 @@ const Checkout = () => {
                               <hr className="flex-1 border-gray-300" />
                             </div>
 
-                            {/* Google button */}
-                            {/* <button
+                            <button
                               type="button"
                               onClick={handleGoogleLogin}
                               className="w-full flex items-center justify-center gap-2 py-3 bg-sky-500 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 text-sm sm:text-base"
                             >
                               <FaGoogle size={20} />
                               Continue with Google
-                            </button> */}
+                            </button>
                           </div>
                         )}
                       </div>
 
-                      {/* Guest Checkout */}
                       <div className="border-t pt-6">
                         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                           <MdPerson className="text-indigo-600" />
@@ -679,7 +673,6 @@ const Checkout = () => {
                       </div>
                     </div>
                   ) : (
-                    // OTP Verification Stage
                     <div className="text-center">
                       <div className="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
                         <MdEmail className="text-3xl text-green-600" />
@@ -743,7 +736,6 @@ const Checkout = () => {
                     </div>
                   )
                 ) : (
-                  // Logged-in User Flow
                   <div>
                     {userProfile ? (
                       <>
@@ -826,7 +818,6 @@ const Checkout = () => {
               </div>
             </div>
 
-            {/* Order Total Sidebar */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-lg shadow-lg border p-4 sm:p-6 lg:sticky lg:top-24">
                 <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">

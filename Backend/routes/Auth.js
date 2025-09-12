@@ -10,9 +10,6 @@ const {
   getUserProfile,
   findOrCreateOAuthUser,
 } = require("../controllers/user");
-
-const sendOtp = require("../controllers/otpController");
-const placeOrder = require("../controllers/placeOrder");
 const {
   resetPassword,
   requestPasswordReset,
@@ -24,6 +21,27 @@ const {
   editProduct,
 } = require("../controllers/products");
 const { getGoldRate } = require("../controllers/goldRate");
+
+const sendOtp = require("../controllers/otpController");
+// Add this to your auth routes file right after the placeOrder import
+
+let placeOrder;
+try {
+  placeOrder = require("../controllers/placeOrder");
+  console.log("✅ placeOrder controller loaded successfully");
+  console.log("✅ placeOrder type:", typeof placeOrder); // Should be "function"
+  console.log("✅ placeOrder function name:", placeOrder.name); // Should show function name
+} catch (error) {
+  console.error("❌ Error loading placeOrder controller:", error.message);
+}
+
+// Make sure your placeOrder controller exports like this:
+// module.exports = placeOrder;  // NOT { placeOrder }
+
+// Test the route with explicit function check
+
+  
+
 
 const AuthRoutes = express.Router();
 
@@ -43,7 +61,7 @@ AuthRoutes.get("/google-test", (req, res) => {
 AuthRoutes.get("/product/:id", getProduct);
 AuthRoutes.get("/products", getProducts);
 AuthRoutes.get("/profile/me", getUserProfile);
-AuthRoutes.delete("/:id", deleteProduct);
+AuthRoutes.delete("/:id", deleteProduct); // 👈 Note: This might conflict—consider /admin/delete/:id
 AuthRoutes.put("/product/:id", editProduct);
 
 // Auth + User routes
@@ -54,7 +72,32 @@ AuthRoutes.post("/login", userAuthentication);
 AuthRoutes.post("/change-password", changePassword);
 AuthRoutes.post("/verify-otp", VerifyEmail);
 AuthRoutes.post("/send-otp", sendOtp);
-AuthRoutes.post("/place-order", placeOrder);
+
+// 👈 FIXED: Ensure this is after imports and before OAuth routes
+AuthRoutes.post("/place-order", placeOrder); // 👈 This should now log "placeOrder controller loaded successfully"
+console.log("✅ /place-order route registered"); // 👈 Debug log
+// Add this simple test route to your auth routes file, right after your existing place-order route
+
+// Simple test route that doesn't depend on the controller
+
+
+// Also add a GET version to test if it's a method issue
+AuthRoutes.get("/place-order-test", (req, res) => {
+  res.json({
+    success: true,
+    message: "GET test route working!",
+    method: "GET"
+  });
+});
+AuthRoutes.post("/place-order-test", (req, res) => {
+  console.log("🎯 Test place order route hit successfully!");
+  console.log("Request body:", req.body);
+  res.json({
+    success: true,
+    message: "Test route working!",
+    receivedData: req.body,
+  });
+});
 AuthRoutes.get("/gold-rate", getGoldRate);
 
 // ✅ Google OAuth Routes with better error handling
@@ -66,7 +109,6 @@ AuthRoutes.get("/google", (req, res, next) => {
     state: redirectUrl, // 👈 pass redirectUrl via OAuth "state"
   })(req, res, next);
 });
-
 
 AuthRoutes.get(
   "/google/callback",
@@ -116,7 +158,6 @@ AuthRoutes.get(
     }
   }
 );
-
 
 // ✅ Facebook OAuth Routes - simplified
 AuthRoutes.get("/facebook", (req, res, next) => {
