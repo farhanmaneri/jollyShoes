@@ -185,18 +185,7 @@ function Navbar() {
                         />
                       </button>
                     )}
-                    {role === "admin" && (
-                      <button
-                        onClick={() => navigate("/gold-rate")}
-                        className="w-5 h-5 text-gray-600 group-hover:text-blue-600"
-                        title="Gold Rate"
-                      >
-                        <Coins
-                          size={22}
-                          className="w-5 h-5 text-gray-600 group-hover:text-blue-600"
-                        />
-                      </button>
-                    )}
+                  
 
                     {role === "admin" && (
                       <button
