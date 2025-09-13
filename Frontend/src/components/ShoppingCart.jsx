@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { MdShoppingCart, MdPayment } from "react-icons/md";
 import Navbar from "./Navbar.jsx";
-import { Toaster, toast } from "react-hot-toast";
+import toast from "react-hot-toast"; // Import toast directly
 
 function ShoppingCart() {
   const productsInShoppingCart = useSelector(
@@ -40,24 +40,35 @@ function ShoppingCart() {
   const finalTotal = totalPrice + shipping;
 
   const handleClearCart = () => {
-    if (window.confirm("Are you sure you want to clear the cart?")) {
-      dispatch(clearCart());
-      toast.success("Cart cleared successfully", {
-        style: {
-          borderRadius: "10px",
-          background: "#EF4444",
-          color: "#fff",
-          fontWeight: "600",
-        },
-      });
-    }
+    // Dismiss any existing toasts first
+    toast.dismiss();
+    
+    dispatch(clearCart());
+    
+    // Show success toast with unique ID
+    toast.success("Cart cleared successfully!", {
+      id: `clear-cart-${Date.now()}`,
+      duration: 2000,
+      icon: "🗑️"
+    });
+
+    // Navigate after a short delay
+    setTimeout(() => {
+      navigate('/');
+    }, 300);
+  };
+
+  // Handle navigation back to products
+  const handleContinueShopping = () => {
+    // Dismiss toasts when navigating
+    toast.dismiss();
+    navigate("/");
   };
 
   return (
     <>
       <Navbar />
-      <Toaster />
-
+      
       <div className="min-h-screen bg-gray-50 pt-20">
         <div className="max-w-6xl mx-auto px-6 py-8">
           <div className="flex items-center gap-3 mb-8">
@@ -75,7 +86,7 @@ function ShoppingCart() {
               {/* Cart Items */}
               <div className="lg:col-span-2 space-y-4">
                 <button
-                  onClick={() => navigate("/")}
+                  onClick={handleContinueShopping}
                   className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium mb-4 transition-colors duration-200"
                 >
                   <AiOutlineArrowLeft />
@@ -93,16 +104,58 @@ function ShoppingCart() {
                   const handleIncrease = () => {
                     if (eachProduct.quantity >= stock) {
                       toast.error("Cannot add more, stock limit reached", {
-                        style: {
-                          borderRadius: "12px",
-                          background: "#EF4444",
-                          color: "#fff",
-                          fontWeight: "600",
-                        },
+                        id: `stock-limit-${eachProduct._id}-${eachProduct.selectedSize}-${Date.now()}`,
+                        duration: 3000,
+                        icon: "⚠️"
                       });
                       return;
                     }
+                    
                     dispatch(add({ ...eachProduct, quantity: 1 }));
+                    
+                    toast.success("Quantity increased!", {
+                      id: `increase-${eachProduct._id}-${eachProduct.selectedSize}-${Date.now()}`,
+                      duration: 1500,
+                      icon: "➕"
+                    });
+                  };
+
+                  const handleDecrease = () => {
+                    dispatch(
+                      removeOne({
+                        _id: eachProduct._id,
+                        selectedSize: eachProduct.selectedSize,
+                      })
+                    );
+                    
+                    if (eachProduct.quantity === 1) {
+                      toast.success("Item removed from cart", {
+                        id: `remove-${eachProduct._id}-${eachProduct.selectedSize}-${Date.now()}`,
+                        duration: 2000,
+                        icon: "🗑️"
+                      });
+                    } else {
+                      toast.success("Quantity decreased!", {
+                        id: `decrease-${eachProduct._id}-${eachProduct.selectedSize}-${Date.now()}`,
+                        duration: 1500,
+                        icon: "➖"
+                      });
+                    }
+                  };
+
+                  const handleRemoveProduct = () => {
+                    dispatch(
+                      remove({
+                        _id: eachProduct._id,
+                        selectedSize: eachProduct.selectedSize,
+                      })
+                    );
+                    
+                    toast.success("Product removed from cart", {
+                      id: `remove-product-${eachProduct._id}-${eachProduct.selectedSize}-${Date.now()}`,
+                      duration: 2000,
+                      icon: "🗑️"
+                    });
                   };
 
                   return (
@@ -117,9 +170,10 @@ function ShoppingCart() {
                             src={eachProduct.image}
                             alt={eachProduct.title}
                             className="w-24 h-24 sm:w-20 sm:h-20 object-cover rounded-lg cursor-pointer hover:opacity-75 transition-opacity duration-200 mx-auto sm:mx-0"
-                            onClick={() =>
-                              navigate(`/details/${eachProduct._id}`)
-                            }
+                            onClick={() => {
+                              toast.dismiss();
+                              navigate(`/details/${eachProduct._id}`);
+                            }}
                           />
                         </div>
 
@@ -147,15 +201,8 @@ function ShoppingCart() {
                             {/* Quantity Controls */}
                             <div className="flex items-center justify-center sm:justify-start gap-3">
                               <button
-                                onClick={() =>
-                                  dispatch(
-                                    removeOne({
-                                      _id: eachProduct._id,
-                                      selectedSize: eachProduct.selectedSize,
-                                    })
-                                  )
-                                }
-                                disabled={eachProduct.quantity < 2}
+                                onClick={handleDecrease}
+                                disabled={eachProduct.quantity < 1}
                                 className="w-10 h-10 sm:w-8 sm:h-8 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:border-indigo-600 hover:text-indigo-600 transition-colors duration-200"
                               >
                                 -
@@ -182,14 +229,7 @@ function ShoppingCart() {
                                 </div>
                               </div>
                               <button
-                                onClick={() =>
-                                  dispatch(
-                                    remove({
-                                      _id: eachProduct._id,
-                                      selectedSize: eachProduct.selectedSize,
-                                    })
-                                  )
-                                }
+                                onClick={handleRemoveProduct}
                                 className="text-red-500 hover:text-red-700 p-3 sm:p-2 hover:bg-red-50 rounded-full transition-colors duration-200"
                               >
                                 <FaTrashAlt className="w-4 h-4" />
@@ -240,7 +280,10 @@ function ShoppingCart() {
                   {/* Actions */}
                   <div className="space-y-6">
                     <button
-                      onClick={() => navigate("/checkout")}
+                      onClick={() => {
+                        toast.dismiss();
+                        navigate("/checkout");
+                      }}
                       className="w-full bg-indigo-600 text-white font-semibold py-4 rounded-lg hover:bg-indigo-700 transition-colors duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                     >
                       <MdPayment className="text-lg" />

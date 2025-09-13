@@ -331,11 +331,12 @@ const Order_Confirmation_Email_Template = `
               flex: 1;
           }
           .product-title {
+                        font-weight: bold;
+
               font-size: 16px;
               margin-bottom: 5px;
           }
           .product-size {
-              font-weight: bold;
               font-size: 16px;
               margin-bottom: 5px;
           }

@@ -3,14 +3,14 @@ import { toast } from "react-hot-toast";
 
 // Get cart key for the current user
 function getUserCartKey() {
-  const user = JSON.parse(localStorage.getItem("user")); // Get the logged-in user
-  return user ? `cart_${user._id}` : "cart_guest"; // Use user-specific key
+  const user = JSON.parse(localStorage.getItem("user"));
+  return user ? `cart_${user._id}` : "cart_guest";
 }
 
 // Fetch cart from localStorage
 function fetchFromLocalStorage() {
   let value = localStorage.getItem(getUserCartKey());
-  return value ? JSON.parse(value) : []; // Return cart or empty array
+  return value ? JSON.parse(value) : [];
 }
 
 // Store cart in localStorage
@@ -33,27 +33,6 @@ export const navbarSlice = createSlice({
           eachProduct._id === _id && eachProduct.selectedSize === selectedSize
       );
 
-      const sizeInfo = sizes?.find((s) => s.size === Number(selectedSize));
-      const stock = sizeInfo ? sizeInfo.stock : 0;
-
-      if (
-        !sizeInfo ||
-        stock <
-          (existingProduct
-            ? existingProduct.quantity + (quantity || 1)
-            : quantity || 1)
-      ) {
-        toast.error("Not enough stock available!", {
-          style: {
-            borderRadius: "10px",
-            background: "#EF4444",
-            color: "#fff",
-            fontWeight: "600",
-          },
-        });
-        return;
-      }
-
       if (existingProduct) {
         existingProduct.quantity += quantity || 1;
       } else {
@@ -67,14 +46,6 @@ export const navbarSlice = createSlice({
       }
 
       storeInLocalStorage(state.value);
-      toast.success("Product added to Cart!", {
-        style: {
-          borderRadius: "10px",
-          background: "#10B981",
-          color: "#fff",
-          fontWeight: "600",
-        },
-      });
     },
 
     remove: (state, action) => {
@@ -85,6 +56,7 @@ export const navbarSlice = createSlice({
       );
       storeInLocalStorage(state.value);
       toast.success("Product removed from Cart!", {
+        id: `remove-${_id}-${selectedSize}`,
         style: {
           borderRadius: "10px",
           background: "#EF4444",
@@ -104,6 +76,7 @@ export const navbarSlice = createSlice({
         product.quantity -= 1;
         storeInLocalStorage(state.value);
         toast.success("Product quantity decreased!", {
+          id: `remove-one-${_id}-${selectedSize}`,
           style: {
             borderRadius: "10px",
             background: "#10B981",
@@ -117,6 +90,7 @@ export const navbarSlice = createSlice({
         );
         storeInLocalStorage(state.value);
         toast.success("Product removed from Cart!", {
+          id: `remove-last-${_id}-${selectedSize}`,
           style: {
             borderRadius: "10px",
             background: "#EF4444",
@@ -131,6 +105,7 @@ export const navbarSlice = createSlice({
       state.value = [];
       storeInLocalStorage(state.value);
       toast.success("Cart is cleared!", {
+        id: "clear-cart",
         style: {
           borderRadius: "10px",
           background: "#EF4444",
@@ -141,10 +116,11 @@ export const navbarSlice = createSlice({
     },
 
     logoutUser: (state) => {
-      localStorage.removeItem(getUserCartKey()); // Remove cart for user
-      localStorage.removeItem("user"); // Remove user data
-      state.value = []; // Clear Redux state
+      localStorage.removeItem(getUserCartKey());
+      localStorage.removeItem("user");
+      state.value = [];
       toast.success("User logged out!", {
+        id: "logout-user",
         style: {
           borderRadius: "10px",
           background: "#EF4444",
