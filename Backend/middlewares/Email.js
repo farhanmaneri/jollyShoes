@@ -67,6 +67,7 @@ const sendOrderConfirmationEmail = async (orderData) => {
         <img src="${product.image}" alt="${product.title}" class="product-image">
         <div class="product-info">
           <div class="product-title">${product.title}</div>
+          <div class="product-size">Size:${product.selectedSize}</div>
           <div class="product-price">Rs. ${product.price}</div>
           <div class="product-quantity">Quantity: ${product.quantity}</div>
         </div>
