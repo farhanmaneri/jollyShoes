@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { clearCart } from "../redux/features/navbar/navbarSlice";
 import Navbar from "./Navbar";
-import { Toaster, toast } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useAuth } from "../Auth/AuthProvider";
@@ -97,14 +97,7 @@ const Checkout = () => {
             localStorage.removeItem("token");
             setToken(null);
             navigate("/login");
-            toast.error("Session expired. Please login again.", {
-              style: {
-                borderRadius: "10px",
-                background: "#EF4444",
-                color: "#fff",
-                fontWeight: "600",
-              },
-            });
+            toast.error("Session expired. Please login again.");
           }
         }
       }
@@ -142,37 +135,15 @@ const Checkout = () => {
         localStorage.setItem("token", result.token);
         setToken(result.token);
         setShowLogin(false);
-        toast.success("Login successful 🎉", {
-          style: {
-            borderRadius: "10px",
-            background: "#10B981",
-            color: "#fff",
-            fontWeight: "600",
-          },
-        });
+        toast.success("Login successful 🎉");
       } else {
-        toast.error("Login failed - no token received", {
-          style: {
-            borderRadius: "10px",
-            background: "#EF4444",
-            color: "#fff",
-            fontWeight: "600",
-          },
-        });
+        toast.error("Login failed - no token received");
       }
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
           error.response?.data?.error ||
-          "Invalid email or password ❌",
-        {
-          style: {
-            borderRadius: "10px",
-            background: "#EF4444",
-            color: "#fff",
-            fontWeight: "600",
-          },
-        }
+          "Invalid email or password ❌"
       );
     } finally {
       setIsLoading(false);
@@ -192,35 +163,14 @@ const Checkout = () => {
       });
       if (response.data.success) {
         setServerOtp(response.data.code || response.data.otp);
-        toast.success(`OTP sent to ${data.email}!`, {
-          style: {
-            borderRadius: "10px",
-            background: "#10B981",
-            color: "#fff",
-            fontWeight: "600",
-          },
-        });
+        toast.success(`OTP sent to ${data.email}!`);
         setIsOTPStage(true);
         setResendTimer(30);
       } else {
-        toast.error(response.data.message, {
-          style: {
-            borderRadius: "10px",
-            background: "#EF4444",
-            color: "#fff",
-            fontWeight: "600",
-          },
-        });
+        toast.error(response.data.message);
       }
     } catch (error) {
-      toast.error("Error sending OTP. Try again.", {
-        style: {
-          borderRadius: "10px",
-          background: "#EF4444",
-          color: "#fff",
-          fontWeight: "600",
-        },
-      });
+      toast.error("Error sending OTP. Try again.");
     } finally {
       setIsLoading(false);
     }
@@ -236,14 +186,7 @@ const Checkout = () => {
     if (otp === serverOtp) {
       await placeOrder(formData);
     } else {
-      toast.error("Invalid OTP! Please try again.", {
-        style: {
-          borderRadius: "10px",
-          background: "#EF4444",
-          color: "#fff",
-          fontWeight: "600",
-        },
-      });
+      toast.error("Invalid OTP! Please try again.");
     }
   };
 
@@ -255,7 +198,6 @@ const Checkout = () => {
     });
   };
 
-  // Updated placeOrder function in your Checkout component
   const placeOrder = async (data) => {
     try {
       const orderData = {
@@ -276,7 +218,6 @@ const Checkout = () => {
         userName: data.userName,
       };
 
-      // Place order (stock will be updated automatically by backend)
       const orderResponse = await axios.post(
         `${API}/auth/place-order`,
         orderData,
@@ -286,39 +227,17 @@ const Checkout = () => {
       );
 
       if (orderResponse.data.success) {
-        // Remove the redundant stock update call - backend already handles it
-        toast.success("Order placed successfully!", {
-          style: {
-            borderRadius: "10px",
-            background: "#10B981",
-            color: "#fff",
-            fontWeight: "600",
-          },
-        });
+        toast.success("Order placed successfully!");
         dispatch(clearCart());
         navigate("/");
       } else {
-        toast.error(orderResponse.data.message, {
-          style: {
-            borderRadius: "10px",
-            background: "#EF4444",
-            color: "#fff",
-            fontWeight: "600",
-          },
-        });
+        toast.error(orderResponse.data.message);
       }
     } catch (error) {
       console.error("Order placement error:", error);
       const errorMessage =
         error.response?.data?.message || "Error placing order. Try again.";
-      toast.error(errorMessage, {
-        style: {
-          borderRadius: "10px",
-          background: "#EF4444",
-          color: "#fff",
-          fontWeight: "600",
-        },
-      });
+      toast.error(errorMessage);
     }
   };
 
@@ -350,8 +269,6 @@ const Checkout = () => {
   return (
     <>
       <Navbar />
-      <Toaster />
-
       <div className="min-h-screen bg-gray-50 pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
           <div className="mb-6 sm:mb-8">

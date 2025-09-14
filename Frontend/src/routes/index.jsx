@@ -21,7 +21,6 @@ import UsersPage from "../pages/UsersPage";
 import OrdersPage from "../pages/OrdersPages";
 import PrivacyPolicy from "../pages/PrivacyPolicy";
 import OAuthCallback from "../pages/OAuthCallback";
-import GoldRateManager from "../components/GoldRateManager";
 import LayoutWithNavbar from "../components/LayoutWithNavbar";
 import SingleProduct from "../components/SingleProduct";
 import Details from "../components/Details";
@@ -117,10 +116,7 @@ const routesForAuthenticatedOnly = [
             path: "users",
             element: <UsersPage />,
           },
-          {
-            path: "gold-rate",
-            element: <GoldRateManager />,
-          },
+         
         ],
       },
     ],

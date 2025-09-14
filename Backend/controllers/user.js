@@ -297,11 +297,6 @@ let getUserProfile = async (req, res) => {
 };
 const findOrCreateOAuthUser = async (profile, provider) => {
   try {
-    // // console.log(
-    //   `🔍 ${provider} Profile received:`,
-    //   JSON.stringify(profile, null, 2)
-    // );
-
     let query = {};
 
     // Build query based on provider
@@ -311,12 +306,11 @@ const findOrCreateOAuthUser = async (profile, provider) => {
       query.facebookId = profile.id;
     }
 
-    // Try to find existing user
+    // Try to find existing user by provider ID first
     let user = await Users.findOne(query);
-    // // console.log(`🔍 Existing user found:`, user ? "Yes" : "No");
 
     if (!user) {
-      // Extract email with multiple fallback options
+      // Extract email
       let email = null;
       if (profile.emails && profile.emails.length > 0) {
         email = profile.emails[0].value;
@@ -324,7 +318,36 @@ const findOrCreateOAuthUser = async (profile, provider) => {
         email = profile._json.email;
       }
 
-      // Extract name with fallback options
+      // 👇 NEW: Also check if user exists by email
+      if (email) {
+        user = await Users.findOne({ email: email });
+
+        if (user) {
+          // User exists with this email, update with OAuth provider ID
+          if (provider === "google") {
+            user.googleId = profile.id;
+          } else if (provider === "facebook") {
+            user.facebookId = profile.id;
+          }
+          user.lastLogin = new Date();
+          await user.save();
+          console.log(
+            `✅ Existing user updated with ${provider} ID:`,
+            user.email
+          );
+        }
+      }
+    }
+
+    if (!user) {
+      // Extract remaining profile data
+      let email = null;
+      if (profile.emails && profile.emails.length > 0) {
+        email = profile.emails[0].value;
+      } else if (profile._json && profile._json.email) {
+        email = profile._json.email;
+      }
+
       let name = profile.displayName;
       if (!name && profile._json) {
         name =
@@ -337,7 +360,6 @@ const findOrCreateOAuthUser = async (profile, provider) => {
         name = `${provider.charAt(0).toUpperCase() + provider.slice(1)} User`;
       }
 
-      // Extract avatar with fallback
       let avatar = null;
       if (profile.photos && profile.photos.length > 0) {
         avatar = profile.photos[0].value;
@@ -345,27 +367,12 @@ const findOrCreateOAuthUser = async (profile, provider) => {
         avatar = profile._json.picture;
       }
 
-      // console.log(`🔧 Creating new user with data:`, {
-      //   name,
-      //   email: email || "No email",
-      //   avatar: avatar || "No avatar",
-      //   provider,
-      // });
-
       // Validate required fields
       if (!email) {
-        throw new Error(
-          `Email not provided by ${provider}. Profile: ${JSON.stringify(
-            profile
-          )}`
-        );
+        throw new Error(`Email not provided by ${provider}`);
       }
       if (!name) {
-        throw new Error(
-          `Name not provided by ${provider}. Profile: ${JSON.stringify(
-            profile
-          )}`
-        );
+        throw new Error(`Name not provided by ${provider}`);
       }
 
       // Create new user
@@ -389,17 +396,18 @@ const findOrCreateOAuthUser = async (profile, provider) => {
 
       user = new Users(userData);
       await user.save();
-      // console.log(`✅ New ${provider} user created:`, user.email);
+      console.log(`✅ New ${provider} user created:`, user.email);
     } else {
       // Update existing user's last login
       user.lastLogin = new Date();
       await user.save();
+      console.log(`✅ Existing user logged in:`, user.email);
     }
 
     const token = generateToken(user);
     return { user, token };
   } catch (error) {
-   
+    console.error("❌ OAuth user creation error:", error);
     throw new Error("OAuth user creation failed: " + error.message);
   }
 };

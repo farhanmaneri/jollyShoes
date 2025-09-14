@@ -15,14 +15,14 @@ const OAuthCallback = () => {
 
     const token = searchParams.get("token");
     const userData = searchParams.get("user");
-    const redirectUrl = searchParams.get("redirectUrl") || "/"; // 👈 fallback to home
+    const redirectUrl = searchParams.get("redirectUrl") || "/"; 
     const error = searchParams.get("error");
 
-    // console.log("🔍 Extracted values:", {
-    //   token: token ? "Present" : "Missing",
-    //   userData: userData ? "Present" : "Missing",
-    //   error,
-    // });
+    console.log("🔍 Extracted values:", {
+      token: token ? "Present" : "Missing",
+      userData: userData ? "Present" : "Missing",
+      error,
+    });
 
     if (error) {
       //   console.error("❌ OAuth Error:", error);

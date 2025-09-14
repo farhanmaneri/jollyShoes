@@ -20,7 +20,6 @@ const {
   deleteProduct,
   editProduct,
 } = require("../controllers/products");
-const { getGoldRate } = require("../controllers/goldRate");
 
 const sendOtp = require("../controllers/otpController");
 // Add this to your auth routes file right after the placeOrder import
@@ -73,15 +72,11 @@ AuthRoutes.post("/change-password", changePassword);
 AuthRoutes.post("/verify-otp", VerifyEmail);
 AuthRoutes.post("/send-otp", sendOtp);
 
-// 👈 FIXED: Ensure this is after imports and before OAuth routes
-AuthRoutes.post("/place-order", placeOrder); // 👈 This should now log "placeOrder controller loaded successfully"
-console.log("✅ /place-order route registered"); // 👈 Debug log
-// Add this simple test route to your auth routes file, right after your existing place-order route
-
-// Simple test route that doesn't depend on the controller
+AuthRoutes.post("/place-order", placeOrder); 
+console.log("✅ /place-order route registered"); 
 
 
-// Also add a GET version to test if it's a method issue
+
 AuthRoutes.get("/place-order-test", (req, res) => {
   res.json({
     success: true,
@@ -98,7 +93,6 @@ AuthRoutes.post("/place-order-test", (req, res) => {
     receivedData: req.body,
   });
 });
-AuthRoutes.get("/gold-rate", getGoldRate);
 
 // ✅ Google OAuth Routes with better error handling
 AuthRoutes.get("/google", (req, res, next) => {
@@ -118,12 +112,21 @@ AuthRoutes.get(
   }),
   async (req, res) => {
     try {
-      const { user, token } = await findOrCreateOAuthUser(req.user, "google");
+       console.log("🔍 Google OAuth callback triggered");
+       console.log("🔍 NODE_ENV:", process.env.NODE_ENV);
+       console.log("🔍 FRONTEND_URL_PROD:", process.env.FRONTEND_URL_PROD);
+       console.log("🔍 req.user:", req.user ? "Present" : "Missing");
+
+       const { user, token } = await findOrCreateOAuthUser(req.user, "google");
+       console.log("🔍 Token generated:", token ? "Success" : "Failed");
+       console.log("🔍 User data:", user ? user.email : "No user");
 
       const frontendURL =
         process.env.NODE_ENV === "production"
           ? process.env.FRONTEND_URL_PROD
           : "http://localhost:5173";
+
+                console.log("🔍 Using frontend URL:", frontendURL);
 
       // 👇 pull original redirectUrl from state
       let redirectUrl = req.query.state || "/";
@@ -150,6 +153,8 @@ AuthRoutes.get(
         `${frontendURL}/oauth/callback?token=${token}&user=${userData}&redirectUrl=${redirectUrl}`
       );
     } catch (error) {
+            console.error("❌ Google OAuth callback error:", error);
+
       const frontendURL =
         process.env.NODE_ENV === "production"
           ? process.env.FRONTEND_URL_PROD
