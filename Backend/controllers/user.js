@@ -118,6 +118,10 @@ let userAuthentication = async (req, res) => {
   }
 };
 let facebookAuthCallback = async (req, res) => {
+  const URL =
+    process.env.MODE === "production"
+      ? process.env.FRONTEND_URL_PROD
+      : process.env.FRONTEND_URL_DEV;
   try {
     // Passport attaches user profile to req.user
     const fbProfile = req.user;
@@ -155,9 +159,7 @@ let facebookAuthCallback = async (req, res) => {
 
     // Redirect to frontend with token
     res.redirect(
-      `${
-        process.env.FRONTEND_URL_DEV
-      }/dashboard?token=${token}&name=${encodeURIComponent(user.name)}`
+      `${URL}/dashboard?token=${token}&name=${encodeURIComponent(user.name)}`
     );
   } catch (error) {
     // console.error("Error in facebookAuthCallback:", error);
@@ -413,7 +415,7 @@ const findOrCreateOAuthUser = async (profile, provider) => {
 };
 let googleAuthCallback = async (req, res) => {
    const URL =
-     import.meta.env.MODE === "production"
+     process.env.MODE === "production"
        ? process.env.FRONTEND_URL_PROD
        : process.env.FRONTEND_URL_DEV
   try {
