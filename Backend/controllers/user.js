@@ -412,12 +412,14 @@ const findOrCreateOAuthUser = async (profile, provider) => {
   }
 };
 let googleAuthCallback = async (req, res) => {
+   const URL =
+     import.meta.env.MODE === "production"
+       ? process.env.FRONTEND_URL_PROD
+       : process.env.FRONTEND_URL_DEV
   try {
     const { user, token } = await findOrCreateOAuthUser(req.user, "google");
     res.redirect(
-      `${
-        process.env.FRONTEND_URL_DEV
-      }/dashboard?token=${token}&user=${encodeURIComponent(user)}`
+      `${URL}/dashboard?token=${token}&user=${encodeURIComponent(user)}`
     );
   } catch (error) {
     // console.error("Error in googleAuthCallback:", error);
