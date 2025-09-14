@@ -150,10 +150,10 @@ const EditData = () => {
       toast.error("Update failed", {
         id: `update-error-${id}`,
       });
-      console.log(
-        "Error updating product:",
-        error.response?.data || error.message
-      );
+      // console.log(
+      //   "Error updating product:",
+      //   error.response?.data || error.message
+      // );
     } finally {
       setUploading(false);
     }

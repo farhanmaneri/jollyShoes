@@ -74,7 +74,7 @@ function Signup() {
         notifyError();
       }
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       notifyError();
     }
   };
@@ -93,7 +93,7 @@ function Signup() {
         setOtpError(response.data.message || "Invalid OTP");
       }
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       setOtpError("Error verifying OTP");
     }
   };

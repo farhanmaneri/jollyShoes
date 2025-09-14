@@ -10,7 +10,7 @@ const OAuthCallback = () => {
   const { setToken } = useAuth();
 
   useEffect(() => {
-    console.log("🔍 OAuth Callback - Full URL:", window.location.href); 
+    // console.log("🔍 OAuth Callback - Full URL:", window.location.href); 
     // the console is commented again after checking the issue
     // console.log("🔍 Search Params:", Object.fromEntries(searchParams));
 
@@ -19,11 +19,11 @@ const OAuthCallback = () => {
     const redirectUrl = searchParams.get("redirectUrl") || "/"; 
     const error = searchParams.get("error");
 
-    console.log("🔍 Extracted values:", {
-      token: token ? "Present" : "Missing",
-      userData: userData ? "Present" : "Missing",
-      error,
-    });
+    // console.log("🔍 Extracted values:", {
+    //   token: token ? "Present" : "Missing",
+    //   userData: userData ? "Present" : "Missing",
+    //   error,
+    // });
 
     if (error) {
       //   console.error("❌ OAuth Error:", error);

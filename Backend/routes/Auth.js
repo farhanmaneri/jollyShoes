@@ -27,11 +27,11 @@ const sendOtp = require("../controllers/otpController");
 let placeOrder;
 try {
   placeOrder = require("../controllers/placeOrder");
-  console.log("✅ placeOrder controller loaded successfully");
-  console.log("✅ placeOrder type:", typeof placeOrder); // Should be "function"
-  console.log("✅ placeOrder function name:", placeOrder.name); // Should show function name
+  // console.log("✅ placeOrder controller loaded successfully");
+  // console.log("✅ placeOrder type:", typeof placeOrder); // Should be "function"
+  // console.log("✅ placeOrder function name:", placeOrder.name); // Should show function name
 } catch (error) {
-  console.error("❌ Error loading placeOrder controller:", error.message);
+  // console.error("❌ Error loading placeOrder controller:", error.message);
 }
 
 // Make sure your placeOrder controller exports like this:
@@ -73,7 +73,7 @@ AuthRoutes.post("/verify-otp", VerifyEmail);
 AuthRoutes.post("/send-otp", sendOtp);
 
 AuthRoutes.post("/place-order", placeOrder); 
-console.log("✅ /place-order route registered"); 
+// console.log("✅ /place-order route registered"); 
 
 
 
@@ -85,8 +85,8 @@ AuthRoutes.get("/place-order-test", (req, res) => {
   });
 });
 AuthRoutes.post("/place-order-test", (req, res) => {
-  console.log("🎯 Test place order route hit successfully!");
-  console.log("Request body:", req.body);
+  // console.log("🎯 Test place order route hit successfully!");
+  // console.log("Request body:", req.body);
   res.json({
     success: true,
     message: "Test route working!",
@@ -112,14 +112,14 @@ AuthRoutes.get(
   }),
   async (req, res) => {
     try {
-       console.log("🔍 Google OAuth callback triggered");
-       console.log("🔍 NODE_ENV:", process.env.NODE_ENV);
-       console.log("🔍 FRONTEND_URL_PROD:", process.env.FRONTEND_URL_PROD);
-       console.log("🔍 req.user:", req.user ? "Present" : "Missing");
+      //  console.log("🔍 Google OAuth callback triggered");
+      //  console.log("🔍 NODE_ENV:", process.env.NODE_ENV);
+      //  console.log("🔍 FRONTEND_URL_PROD:", process.env.FRONTEND_URL_PROD);
+      //  console.log("🔍 req.user:", req.user ? "Present" : "Missing");
 
        const { user, token } = await findOrCreateOAuthUser(req.user, "google");
-       console.log("🔍 Token generated:", token ? "Success" : "Failed");
-       console.log("🔍 User data:", user ? user.email : "No user");
+      //  console.log("🔍 Token generated:", token ? "Success" : "Failed");
+      //  console.log("🔍 User data:", user ? user.email : "No user");
 
       const frontendURL =
         process.env.NODE_ENV === "production"
@@ -153,7 +153,7 @@ AuthRoutes.get(
         `${frontendURL}/oauth/callback?token=${token}&user=${userData}&redirectUrl=${redirectUrl}`
       );
     } catch (error) {
-            console.error("❌ Google OAuth callback error:", error);
+            // console.error("❌ Google OAuth callback error:", error);
 
       const frontendURL =
         process.env.NODE_ENV === "production"

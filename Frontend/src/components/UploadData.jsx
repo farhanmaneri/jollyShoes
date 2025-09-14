@@ -59,7 +59,7 @@ const UploadData = () => {
         },
       });
     } catch (e) {
-      console.error("Crop failed", e);
+      // console.error("Crop failed", e);
       toast.error("Failed to crop image", {
         style: {
           borderRadius: "10px",

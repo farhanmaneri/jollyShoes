@@ -23,7 +23,7 @@ function OrdersPage() {
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Failed to fetch orders:", err);
+        // console.error("Failed to fetch orders:", err);
         setLoading(false);
       });
   }, [token]);

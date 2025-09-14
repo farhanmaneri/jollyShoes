@@ -11,7 +11,7 @@ const AuthProvider = ({ children }) => {
     try {
       return localStorage.getItem("token");
     } catch (error) {
-      console.error("Error accessing localStorage:", error);
+      // console.error("Error accessing localStorage:", error);
       return null;
     }
   });
@@ -20,7 +20,7 @@ const AuthProvider = ({ children }) => {
     try {
       return localStorage.getItem("role");
     } catch (error) {
-      console.error("Error accessing localStorage:", error);
+      // console.error("Error accessing localStorage:", error);
       return null;
     }
   });
@@ -31,24 +31,24 @@ const AuthProvider = ({ children }) => {
       // console.log("🔄 Loading saved user from localStorage:", savedUser);
       return savedUser ? JSON.parse(savedUser) : null;
     } catch (error) {
-      console.error("Error parsing saved user:", error);
+      // console.error("Error parsing saved user:", error);
       return null;
     }
   });
 
   // Function to set the authentication token
   const setToken = (newToken) => {
-    console.log(
-      "🔧 Setting new token:",
-      newToken ? "Token received" : "Token cleared"
-    );
+    // console.log(
+    //   "🔧 Setting new token:",
+    //   newToken ? "Token received" : "Token cleared"
+    // );
 
     setToken_(newToken);
 
     if (newToken) {
       try {
         const decoded = jwtDecode(newToken);
-        console.log("🔍 Decoded token payload:", decoded);
+        // console.log("🔍 Decoded token payload:", decoded);
 
         const userRole = decoded.role || null;
         const userData = {
@@ -57,8 +57,8 @@ const AuthProvider = ({ children }) => {
           email: decoded.email || null,
         };
 
-        console.log("👤 Extracted user data:", userData);
-        console.log("🎭 Extracted role:", userRole);
+        // console.log("👤 Extracted user data:", userData);
+        // console.log("🎭 Extracted role:", userRole);
 
         setRole(userRole);
         setUser(userData);
@@ -68,9 +68,9 @@ const AuthProvider = ({ children }) => {
           localStorage.setItem("role", userRole || "");
           localStorage.setItem("user", JSON.stringify(userData));
           localStorage.setItem("token", newToken);
-          console.log("💾 Data saved to localStorage successfully");
+          // console.log("💾 Data saved to localStorage successfully");
         } catch (storageError) {
-          console.error("Error saving to localStorage:", storageError);
+          // console.error("Error saving to localStorage:", storageError);
         }
       } catch (err) {
         console.error("❌ Failed to decode token", err);
@@ -82,11 +82,11 @@ const AuthProvider = ({ children }) => {
           localStorage.removeItem("user");
           localStorage.removeItem("token");
         } catch (storageError) {
-          console.error("Error clearing localStorage:", storageError);
+          // console.error("Error clearing localStorage:", storageError);
         }
       }
     } else {
-      console.log("🧹 Clearing all auth data");
+      // console.log("🧹 Clearing all auth data");
       setRole(null);
       setUser(null);
 
@@ -95,34 +95,34 @@ const AuthProvider = ({ children }) => {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
       } catch (storageError) {
-        console.error("Error clearing localStorage:", storageError);
+        // console.error("Error clearing localStorage:", storageError);
       }
     }
   };
 
   // Function to update user info (useful for profile updates)
   const setUserInfo = (userInfo) => {
-    console.log("📝 Updating user info:", userInfo);
+    // console.log("📝 Updating user info:", userInfo);
     setUser(userInfo);
 
     if (userInfo) {
       try {
         localStorage.setItem("user", JSON.stringify(userInfo));
       } catch (error) {
-        console.error("Error saving user info:", error);
+        // console.error("Error saving user info:", error);
       }
     } else {
       try {
         localStorage.removeItem("user");
       } catch (error) {
-        console.error("Error removing user info:", error);
+        // console.error("Error removing user info:", error);
       }
     }
   };
 
   // Function to logout
   const logout = () => {
-    console.log("👋 Logging out user");
+    // console.log("👋 Logging out user");
     setToken_(null);
     setRole(null);
     setUser(null);
@@ -133,7 +133,7 @@ const AuthProvider = ({ children }) => {
       localStorage.removeItem("user");
       localStorage.removeItem("userEmail"); // Also remove the email you store in login
     } catch (error) {
-      console.error("Error during logout cleanup:", error);
+      // console.error("Error during logout cleanup:", error);
     }
 
     delete axios.defaults.headers.common["Authorization"];
@@ -141,24 +141,24 @@ const AuthProvider = ({ children }) => {
 
   // Initialize axios headers and handle existing tokens
   useEffect(() => {
-    console.log(
-      "🔄 Auth effect running - token:",
-      token ? "present" : "absent",
-      "user:",
-      user ? "present" : "absent"
-    );
+    // console.log(
+    //   "🔄 Auth effect running - token:",
+    //   token ? "present" : "absent",
+    //   "user:",
+    //   user ? "present" : "absent"
+    // );
 
     if (token) {
       axios.defaults.headers.common["Authorization"] = "Bearer " + token;
 
       // 🔧 Fix for existing tokens - extract user data if missing
       if (!user) {
-        console.log(
-          "🔧 User data missing, attempting to extract from token..."
-        );
+        // console.log(
+        //   "🔧 User data missing, attempting to extract from token..."
+        // );
         try {
           const decoded = jwtDecode(token);
-          console.log("🔍 Decoded existing token:", decoded);
+          // console.log("🔍 Decoded existing token:", decoded);
 
           const userData = {
             id: decoded.id || decoded.userId || decoded._id || null,
@@ -172,10 +172,10 @@ const AuthProvider = ({ children }) => {
           };
 
           if (userData.name || userData.email || userData.id) {
-            console.log(
-              "✅ Extracted user data from existing token:",
-              userData
-            );
+            // console.log(
+            //   "✅ Extracted user data from existing token:",
+            //   userData
+            // );
             setUser(userData);
             try {
               localStorage.setItem("user", JSON.stringify(userData));

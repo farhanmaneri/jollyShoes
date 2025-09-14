@@ -333,10 +333,10 @@ const findOrCreateOAuthUser = async (profile, provider) => {
           }
           user.lastLogin = new Date();
           await user.save();
-          console.log(
-            `✅ Existing user updated with ${provider} ID:`,
-            user.email
-          );
+          // console.log(
+          //   `✅ Existing user updated with ${provider} ID:`,
+          //   user.email
+          // );
         }
       }
     }
@@ -398,18 +398,18 @@ const findOrCreateOAuthUser = async (profile, provider) => {
 
       user = new Users(userData);
       await user.save();
-      console.log(`✅ New ${provider} user created:`, user.email);
+      // console.log(`✅ New ${provider} user created:`, user.email);
     } else {
       // Update existing user's last login
       user.lastLogin = new Date();
       await user.save();
-      console.log(`✅ Existing user logged in:`, user.email);
+      // console.log(`✅ Existing user logged in:`, user.email);
     }
 
     const token = generateToken(user);
     return { user, token };
   } catch (error) {
-    console.error("❌ OAuth user creation error:", error);
+    // console.error("❌ OAuth user creation error:", error);
     throw new Error("OAuth user creation failed: " + error.message);
   }
 };

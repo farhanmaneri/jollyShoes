@@ -104,7 +104,7 @@ app.use(passport.initialize());
 
 // Debug middleware to catch all requests
 app.use((req, res, next) => {
-  console.log(`🔍 Incoming: ${req.method} ${req.originalUrl}`);
+  // console.log(`🔍 Incoming: ${req.method} ${req.originalUrl}`);
   next();
 });
 
@@ -114,10 +114,10 @@ app.use("/auth", AuthRoutes);
 
 // Add specific debug for place-order
 app.use('/auth/place-order', (req, res, next) => {
-  console.log('🎯 Intercepted /auth/place-order request');
-  console.log('Method:', req.method);
-  console.log('Headers:', req.headers);
-  console.log('Body:', req.body);
+  // console.log('🎯 Intercepted /auth/place-order request');
+  // console.log('Method:', req.method);
+  // console.log('Headers:', req.headers);
+  // console.log('Body:', req.body);
   next();
 });
 

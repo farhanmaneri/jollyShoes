@@ -29,7 +29,7 @@ console.log("API Link",API)
   const data = await response.json();
 
   // Log the data for debugging purposes (optional)
-  console.log("Fetched Products:", data);
+  // console.log("Fetched Products:", data);
 
   return data; // Assuming the response has a 'products' field
 });

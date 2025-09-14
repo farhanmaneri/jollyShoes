@@ -144,7 +144,7 @@ const placeOrder = async (req, res) => {
         products,
       
       };
-      console.log(products)
+      // console.log(products)
       await sendOrderConfirmationEmail(orderData);
     } catch (emailError) {
       console.error("Order confirmation email failed:", emailError.message);
