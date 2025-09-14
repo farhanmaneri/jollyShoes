@@ -10,7 +10,8 @@ const OAuthCallback = () => {
   const { setToken } = useAuth();
 
   useEffect(() => {
-    // console.log("🔍 OAuth Callback - Full URL:", window.location.href);
+    // console.log("🔍 OAuth Callback - Full URL:", window.location.href); 
+    // the console is commented again after checking the issue
     // console.log("🔍 Search Params:", Object.fromEntries(searchParams));
 
     const token = searchParams.get("token");
