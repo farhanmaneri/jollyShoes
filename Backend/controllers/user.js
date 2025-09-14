@@ -415,9 +415,9 @@ const findOrCreateOAuthUser = async (profile, provider) => {
 };
 let googleAuthCallback = async (req, res) => {
    const URL =
-     process.env.MODE === "production"
+     process.env.NODE_ENV === "production"
        ? process.env.FRONTEND_URL_PROD
-       : process.env.FRONTEND_URL_DEV
+       : process.env.FRONTEND_URL_DEV;
   try {
     const { user, token } = await findOrCreateOAuthUser(req.user, "google");
     res.redirect(
